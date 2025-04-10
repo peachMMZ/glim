@@ -27,7 +27,8 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '设置',
           icon: Settings,
-          keepAlive: true
+          keepAlive: true,
+          hidden: true
         },
         component: () => import('@/view/setting/index.vue')
       }

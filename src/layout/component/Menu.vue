@@ -1,7 +1,7 @@
 <template>
   <div class="h-full flex flex-col">
-    <div class="h-12 w-full flex flex-col justify-start items-center p-y-4">
-      <img class="w-1/2" src="/tauri.svg" />
+    <div class="basis-1/6 h-12 w-full flex flex-col justify-start items-center p-y-4">
+      <img class="w-1/2" src="/app-icon.png" />
       <NDivider />
     </div>
     <NMenu
@@ -12,12 +12,21 @@
       :collapsed-width="64"
     />
     <div class="basis-1/6 w-full flex flex-col justify-center items-center">
-      <NPopover placement="right" trigger="hover">
+      <NPopover class="w-full" placement="right" trigger="click" style="padding: 2px">
         <template #trigger>
-          <NButton text :render-icon="renderIcon(Menu)"></NButton>
+          <NButton class="w-2/3" quaternary :render-icon="renderIcon(Menu, { size: 24 })"></NButton>
         </template>
         <template #default>
-          <div>Settings Options</div>
+          <div>
+            <NList clickable hoverable>
+              <NListItem class="h-8 w-full" v-for="item in litterMenuOptions" :key="item.key" @click="item.onClick">
+                <div class="flex justify-start items-center gap-x-2">
+                  <NIcon :component="item.icon" :size="16" />
+                  <span>{{ item.label }}</span>
+                </div>
+              </NListItem>
+            </NList>
+          </div>
         </template>
       </NPopover>
     </div>
@@ -27,8 +36,8 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
-import { NMenu, type MenuOption, NDivider, NButton, NPopover } from 'naive-ui'
-import { Menu } from 'lucide-vue-next'
+import { NMenu, type MenuOption, NDivider, NButton, NPopover, NList, NListItem, NIcon } from 'naive-ui'
+import { Menu, Settings, CircleArrowUp } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'
 
 defineProps<{
@@ -54,5 +63,22 @@ function routeToMenuOption(route: RouteRecordRaw): MenuOption {
     icon: renderIcon(route.meta?.icon),
   }
 }
+
+const litterMenuOptions = [
+  {
+    key: 'update',
+    label: '检查更新',
+    icon: CircleArrowUp,
+    onClick: () => {}
+  },
+  {
+    key: 'setting',
+    label: '设置',
+    icon: Settings,
+    onClick: () => {
+      router.push('/setting')
+    }
+  }
+]
 </script>
 <style scoped></style>
