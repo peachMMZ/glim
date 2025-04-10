@@ -6,6 +6,7 @@
         bordered
         :collapsed="collapsed"
         collapse-mode="width"
+        :collapsed-width="64"
       >
         <Menu :collapsed="collapsed" />
       </NLayoutSider>
