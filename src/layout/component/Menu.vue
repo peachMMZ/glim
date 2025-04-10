@@ -1,8 +1,7 @@
 <template>
   <div class="h-full flex flex-col">
-    <div class="basis-1/6 h-12 w-full flex flex-col justify-start items-center p-y-4">
+    <div class="basis-1/6 h-12 w-full flex flex-col justify-center items-center">
       <img class="w-1/2" src="/app-icon.png" />
-      <NDivider />
     </div>
     <NMenu
       class="flex-1"
@@ -36,7 +35,7 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
-import { NMenu, type MenuOption, NDivider, NButton, NPopover, NList, NListItem, NIcon } from 'naive-ui'
+import { NMenu, type MenuOption, NButton, NPopover, NList, NListItem, NIcon } from 'naive-ui'
 import { Menu, Settings, CircleArrowUp } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'
 
