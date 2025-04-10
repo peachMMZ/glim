@@ -102,10 +102,10 @@
             />
           </div>
           <div class="flex justify-start items-center gap-x-2">
-            <NText class="basis-1/2">primaryColorHover</NText>
+            <NText class="basis-1/2">primaryColorSuppl</NText>
             <NColorPicker
               class="basis-1/2"
-              v-model:value="systemStore.naiveThemeOverride.common!.primaryColorHover"
+              v-model:value="systemStore.naiveThemeOverride.common!.primaryColorSuppl"
             />
           </div>
         </div>
