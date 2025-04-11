@@ -1,15 +1,17 @@
 <template>
   <div class="h-full flex flex-col">
-    <div class="basis-1/6 h-12 w-full flex flex-col justify-center items-center">
-      <img class="w-1/2" src="/app-icon.png" />
+    <div class="basis-1/6 h-12 w-full flex flex-col justify-center items-center p-y-2">
+      <img class="w-1/2" src="/app-icon.svg" />
     </div>
-    <NMenu
-      class="flex-1"
-      :value="currentPath"
-      :options="menuOptions"
-      :collapsed="collapsed"
-      :collapsed-width="64"
-    />
+    <NScrollbar class="h-[calc(100vh-3rem)]">
+      <NMenu
+        class="flex-1"
+        :value="currentPath"
+        :options="menuOptions"
+        :collapsed="collapsed"
+        :collapsed-width="64"
+      />
+    </NScrollbar>
     <div class="basis-1/6 w-full flex flex-col justify-center items-center">
       <NPopover class="w-full" placement="right" trigger="click" style="padding: 2px">
         <template #trigger>
@@ -35,7 +37,7 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
-import { NMenu, type MenuOption, NButton, NPopover, NList, NListItem, NIcon } from 'naive-ui'
+import { NMenu, type MenuOption, NButton, NPopover, NList, NListItem, NIcon, NScrollbar } from 'naive-ui'
 import { Menu, Settings, CircleArrowUp } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'
 

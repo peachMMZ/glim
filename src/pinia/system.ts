@@ -7,10 +7,10 @@ type Theme = 'light' | 'dark'
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const defaultTheme = (): GlobalThemeOverrides => ({
   common: {
-    primaryColor: '#7e57c2',
-    primaryColorHover: '#6a4fb3',
-    primaryColorPressed: '#5a3ea3',
-    primaryColorSuppl: '#6a4fb3',
+    primaryColor: '#6366F1',
+    primaryColorHover: '#4F46E5',
+    primaryColorPressed: '#828AF5FF',
+    primaryColorSuppl: '#4F46E5',
     fontSize: '14px',
     fontWeight: '400',
   }

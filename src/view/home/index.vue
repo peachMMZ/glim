@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <span>{{ count }}</span>
-    <n-button type="primary" @click="count++">Button</n-button>
+  <div class="h-full flex flex-col justify-center items-center">
+    <span>Count: {{ count }}</span>
+    <n-button type="primary" @click="count++">Increment</n-button>
   </div>
 </template>
 

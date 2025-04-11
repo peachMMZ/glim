@@ -42,7 +42,7 @@
                 <NIcon
                   size="24"
                   :component="item.icon"
-                  :color="item.theme.common.primaryColor"
+                  :color="themeVars.primaryColor"
                 />
                 <NText>{{ item.label }}</NText>
               </NElement>

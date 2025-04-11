@@ -22,5 +22,7 @@ const systemStore = useSystemStore()
 
 </script>
 <style>
-
+.body {
+  overflow: hidden;
+}
 </style>
