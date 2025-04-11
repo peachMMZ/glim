@@ -8,8 +8,7 @@
       >
       </NButton>
     </NFlex>
-    <div class="flex-1 h-full w-full flex items-center p-x-48" data-tauri-drag-region>
-      <NInput class="w-1/2" size="small" />
+    <div class="flex-1 h-full w-full flex justify-center items-center" data-tauri-drag-region>
     </div>
     <NFlex justify="end">
       <NButton text :render-icon="renderIcon(CircleMinus, { color: themeVars.warningColor })" @click="appWindow.minimize()"></NButton>
@@ -21,7 +20,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { NButton, NFlex, NInput, useThemeVars } from 'naive-ui'
+import { NButton, NFlex, useThemeVars } from 'naive-ui'
 import { CircleMinus, Circle, CircleX } from 'lucide-vue-next'
 import { IndentIncrease, IndentDecrease } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'

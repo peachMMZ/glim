@@ -12,6 +12,7 @@ async function initStore() {
 }
 
 async function main() {
+  const initStartTime = Date.now()
 
   const app = createApp(App)
   const pinia = createPinia()
@@ -22,6 +23,8 @@ async function main() {
   await initStore()
 
   app.mount('#app')
+
+  console.log(`App init time: ${Date.now() - initStartTime}ms`)
 }
 
 main()
