@@ -70,7 +70,7 @@
                   :component="Monitor"
                   :color="themeVars.primaryColor"
                 />
-                <NText type="primary">使用系统主题</NText>
+                <NText type="primary">跟随系统</NText>
               </NElement>
             </div>
           </NConfigProvider>
