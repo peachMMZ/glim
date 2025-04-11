@@ -134,12 +134,20 @@
         </div>
       </div>
       <template #header-extra>
-        <NButton type="primary" text @click="systemStore.resetThemeVars">
-          <template #icon>
-            <NIcon :component="RefreshCw" />
-          </template>
-          <span>恢复默认</span>
-        </NButton>
+        <div class="flex justify-end items-center gap-x-2">
+          <NButton type="primary" text @click="systemStore.saveThemeVars">
+            <template #icon>
+              <NIcon :component="Save" />
+            </template>
+            <span>保存</span>
+          </NButton>
+          <NButton type="primary" text @click="systemStore.resetThemeVars">
+            <template #icon>
+              <NIcon :component="RefreshCw" />
+            </template>
+            <span>恢复默认</span>
+          </NButton>
+        </div>
       </template>
     </NCard>
   </div>
@@ -160,7 +168,7 @@ import {
   NColorPicker,
   NInputNumber,
 } from 'naive-ui'
-import { Sun, Moon, Monitor, RefreshCw } from 'lucide-vue-next'
+import { Sun, Moon, Monitor, RefreshCw, Save } from 'lucide-vue-next'
 import { useSystemStore } from '@/pinia/system'
 
 const systemStore = useSystemStore()
