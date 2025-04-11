@@ -17,7 +17,7 @@
             >
               <div
                 class="w-full h-1/5"
-                :style="{ backgroundColor: item.theme.common.primaryColor }"
+                :style="{ backgroundColor: themeVars.primaryColor }"
               ></div>
               <div
                 class="w-full h-1/5"
@@ -77,8 +77,9 @@
         </NElement>
       </div>
     </NCard>
-    <div class="flex gap-x-4">
-      <NCard title="主题颜色" :bordered="false" embedded>
+
+    <NCard title="主题设置" :bordered="false" embedded>
+      <div class="flex gap-x-4">
         <div class="w-full flex flex-col gap-y-2">
           <div class="flex justify-start items-center gap-x-2">
             <NText class="basis-1/2">primaryColor</NText>
@@ -109,38 +110,43 @@
             />
           </div>
         </div>
-        <template #header-extra>
-          <NButton type="primary" text @click="systemStore.resetThemeVars">
-            <template #icon>
-              <NIcon :component="RefreshCw" />
-            </template>
-            <span>恢复默认</span>
-          </NButton>
-        </template>
-      </NCard>
-      <NCard title="字体" :bordered="false" embedded>
         <div class="w-full flex flex-col gap-y-2">
           <div class="flex justify-start items-center gap-x-2">
             <NText class="basis-1/2">字体大小</NText>
-            <NInput
+            <NInputNumber
               class="basis-1/2"
-              v-model:value="systemStore.naiveThemeOverride.common!.fontSize"
+              :min="1"
+              :value="formattedThemeOverride.common.fontSize"
+              @update:value="(value) => systemStore.naiveThemeOverride.common!.fontSize = `${value}px`"
             />
           </div>
           <div class="flex justify-start items-center gap-x-2">
             <NText class="basis-1/2">字体粗细</NText>
-            <NInput
+            <NInputNumber
               class="basis-1/2"
-              v-model:value="systemStore.naiveThemeOverride.common!.fontWeight"
+              :value="formattedThemeOverride.common.fontWeight"
+              :step="100"
+              :min="100"
+              :max="900"
+              @update:value="(value) => systemStore.naiveThemeOverride.common!.fontWeight = `${value}`"
             />
           </div>
         </div>
-      </NCard>
-    </div>
+      </div>
+      <template #header-extra>
+        <NButton type="primary" text @click="systemStore.resetThemeVars">
+          <template #icon>
+            <NIcon :component="RefreshCw" />
+          </template>
+          <span>恢复默认</span>
+        </NButton>
+      </template>
+    </NCard>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   useThemeVars,
   lightTheme,
@@ -152,7 +158,7 @@ import {
   NText,
   NIcon,
   NColorPicker,
-  NInput,
+  NInputNumber,
 } from 'naive-ui'
 import { Sun, Moon, Monitor, RefreshCw } from 'lucide-vue-next'
 import { useSystemStore } from '@/pinia/system'
@@ -178,6 +184,16 @@ const themeModes = [
 function setTheme(themeValue: 'light' | 'dark') {
   systemStore.setTheme(themeValue)
 }
+
+const formattedThemeOverride = computed(() => {
+  return {
+    ...systemStore.naiveThemeOverride,
+    common: {
+      fontSize: parseInt(systemStore.naiveThemeOverride.common!.fontSize?.replace('px', '') ?? '0'),
+      fontWeight: parseInt(systemStore.naiveThemeOverride.common!.fontWeight ?? '0'),
+    }
+  }
+})
 </script>
 <style scoped>
 .theme-mode-option:hover {

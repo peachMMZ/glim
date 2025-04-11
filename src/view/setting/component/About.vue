@@ -1,7 +1,7 @@
 <template>
   <div class="h-full flex">
     <div class="basis-1/2 flex flex-col items-center justify-center gap-y-4">
-      <img src="/tauri.svg" alt="logo" class="w-32 h-32" />
+      <img src="/app-icon.png" alt="logo" class="w-32 h-32" />
       <NH2>{{ appName.toUpperCase() }}</NH2>
       <NButton type="primary" text>{{ appIdentifier }}</NButton>
       <span>
