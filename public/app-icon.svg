@@ -1,0 +1,25 @@
+
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- 外圈 -->
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#4F46E5" stroke-width="4"/>
+  
+  <!-- 相机主体 -->
+  <rect x="32" y="40" width="64" height="48" rx="8" fill="#6366F1"/>
+  
+  <!-- 镜头外环 -->
+  <circle cx="64" cy="64" r="16" fill="none" stroke="#4F46E5" stroke-width="4"/>
+  
+  <!-- 字母G镜头 -->
+<path d="M66 44 
+         A 20 20 0 0 0 46 72
+         A 20 20 0 0 0 66 84
+         L 66 64
+         L 54 64" 
+      fill="none" 
+      stroke="#E0E7FF" 
+      stroke-width="4" 
+      stroke-linecap="round"/>
+  
+  <!-- 顶部快门按钮 -->
+  <circle cx="64" cy="35" r="3" fill="#6366F1"/>
+</svg>
