@@ -13,23 +13,14 @@
       />
     </NScrollbar>
     <div class="basis-1/6 w-full flex flex-col justify-center items-center">
-      <NPopover class="w-full" placement="right" trigger="click" style="padding: 2px">
-        <template #trigger>
-          <NButton class="w-2/3" quaternary :render-icon="renderIcon(Menu, { size: 24 })"></NButton>
-        </template>
-        <template #default>
-          <div>
-            <NList clickable hoverable>
-              <NListItem class="h-8 w-full" v-for="item in litterMenuOptions" :key="item.key" @click="item.onClick">
-                <div class="flex justify-start items-center gap-x-2">
-                  <NIcon :component="item.icon" :size="16" />
-                  <span>{{ item.label }}</span>
-                </div>
-              </NListItem>
-            </NList>
-          </div>
-        </template>
-      </NPopover>
+      <NDropdown
+        :options="litterMenuOptions"
+        trigger="click"
+        placement="right-end"
+        @select="(key: string) => litterMenuOptions.find((item) => item.key === key)?.onClick()"
+      >
+        <NButton class="w-2/3" quaternary :render-icon="renderIcon(Menu, { size: 24 })"></NButton>
+      </NDropdown>
     </div>
   </div>
 </template>
@@ -37,8 +28,8 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
-import { NMenu, type MenuOption, NButton, NPopover, NList, NListItem, NIcon, NScrollbar } from 'naive-ui'
-import { Menu, Settings, CircleArrowUp } from 'lucide-vue-next'
+import { NMenu, type MenuOption, NButton, NDropdown, NScrollbar } from 'naive-ui'
+import { Menu, Settings, CircleArrowUp, CircleHelp } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'
 
 defineProps<{
@@ -67,15 +58,21 @@ function routeToMenuOption(route: RouteRecordRaw): MenuOption {
 
 const litterMenuOptions = [
   {
+    key: 'help',
+    label: '帮助',
+    icon: renderIcon(CircleHelp),
+    onClick() {}
+  },
+  {
     key: 'update',
     label: '检查更新',
-    icon: CircleArrowUp,
+    icon: renderIcon(CircleArrowUp),
     onClick: () => {}
   },
   {
     key: 'setting',
     label: '设置',
-    icon: Settings,
+    icon: renderIcon(Settings),
     onClick: () => {
       router.push('/setting')
     }
