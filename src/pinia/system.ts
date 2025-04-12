@@ -19,6 +19,7 @@ const defaultTheme = (): GlobalThemeOverrides => ({
 
 export const useSystemStore = defineStore('system', () => {
 
+  const localSettingStore = new LazyStore('setting.json')
   const localThemeStore = new LazyStore('theme-overrides.json')
 
   const osTheme = useOsTheme()
@@ -29,13 +30,24 @@ export const useSystemStore = defineStore('system', () => {
 
   const init = async () => {
     const themeOverrides = await localThemeStore.get<GlobalThemeOverrides['common']>('common')
+    const themeMode = await localSettingStore.get<Theme & 'os'>('theme')
     if (themeOverrides) {
       naiveThemeOverride.value.common = themeOverrides
     } else {
       localThemeStore.set('common', defaultTheme().common)
       localThemeStore.save()
     }
+    if (themeMode === 'os') {
+      useSystemTheme()
+    } else {
+      setTheme(themeMode || 'light')
+    }
     console.log('init theme success')
+  }
+
+  const saveSetting = async () => {
+    await localSettingStore.set('theme', followedOsTheme.value ? 'os' : theme.value)
+    await localSettingStore.save()
   }
 
   const saveThemeVars = () => {
@@ -49,15 +61,13 @@ export const useSystemStore = defineStore('system', () => {
     app.setTheme(themeValue).then(() => {
       mediaQuery.removeEventListener('change', (_event) => {})
       followedOsTheme.value = false
+      saveSetting()
     })
   }
 
   const toggleTheme = () => {
-    theme.value = theme.value === 'light' ? 'dark' : 'light'
-    app.setTheme(theme.value).then(() => {
-      mediaQuery.removeEventListener('change', (_event) => {})
-      followedOsTheme.value = false
-    })
+    const themeValue = theme.value === 'light' ? 'dark' : 'light'
+    setTheme(themeValue)
   }
 
   const resetThemeVars = () => {
@@ -75,6 +85,7 @@ export const useSystemStore = defineStore('system', () => {
         theme.value = event.matches ? 'dark' : 'light'
       })
       followedOsTheme.value = true
+      saveSetting()
     })
   }
 
@@ -84,6 +95,7 @@ export const useSystemStore = defineStore('system', () => {
     naiveThemeOverride,
     followedOsTheme,
     init,
+    saveSetting,
     setTheme,
     toggleTheme,
     saveThemeVars,
