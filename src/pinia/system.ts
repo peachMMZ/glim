@@ -2,7 +2,9 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { app } from '@tauri-apps/api'
 import { LazyStore } from '@tauri-apps/plugin-store'
-import { darkTheme, GlobalThemeOverrides, lightTheme, useOsTheme} from 'naive-ui'
+import { darkTheme, GlobalThemeOverrides, lightTheme, useOsTheme, createDiscreteApi} from 'naive-ui'
+
+const { message } = createDiscreteApi(['message'])
 
 type Theme = 'light' | 'dark'
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -52,7 +54,7 @@ export const useSystemStore = defineStore('system', () => {
 
   const saveThemeVars = () => {
     localThemeStore.set('common', naiveThemeOverride.value.common).then(() => {
-      localThemeStore.save()
+      localThemeStore.save().then(() => message.success('保存成功'))
     })
   }
 
