@@ -169,7 +169,7 @@ import {
   NInputNumber,
 } from 'naive-ui'
 import { Sun, Moon, Monitor, RefreshCw, Save } from 'lucide-vue-next'
-import { useSystemStore } from '@/pinia/system'
+import { useSystemStore } from '@/store/system'
 
 const systemStore = useSystemStore()
 const themeVars = useThemeVars()

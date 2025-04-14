@@ -1,6 +1,7 @@
 import {
   Home,
-  Settings
+  Settings,
+  Boxes
 } from 'lucide-vue-next'
 import { RouteRecordRaw } from 'vue-router'
 
@@ -31,6 +32,16 @@ const routes: RouteRecordRaw[] = [
           hidden: true
         },
         component: () => import('@/view/setting/index.vue')
+      },
+      {
+        path: '/shareSpace',
+        name: 'shareSpace',
+        meta: {
+          title: '共享空间',
+          icon: Boxes,
+          keepAlive: true,
+        },
+        component: () => import('@/view/share/index.vue')
       }
     ],
   },

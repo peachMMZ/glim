@@ -675,6 +675,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-clipboard-manager@npm:~2":
+  version: 2.2.2
+  resolution: "@tauri-apps/plugin-clipboard-manager@npm:2.2.2"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/7b97f98013e0e2eec3e49332061a764d13b5beda5e95a13534c6ba4cf325d223a750ec6a529436ef8671ab8817fed650e488e1337ab4decef014d7b4a790fd59
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/plugin-opener@npm:^2":
   version: 2.2.6
   resolution: "@tauri-apps/plugin-opener@npm:2.2.6"
@@ -1800,6 +1809,7 @@ __metadata:
   dependencies:
     "@tauri-apps/api": "npm:^2"
     "@tauri-apps/cli": "npm:^2"
+    "@tauri-apps/plugin-clipboard-manager": "npm:~2"
     "@tauri-apps/plugin-opener": "npm:^2"
     "@tauri-apps/plugin-store": "npm:~2"
     "@types/node": "npm:^22.14.0"

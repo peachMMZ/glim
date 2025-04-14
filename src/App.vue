@@ -16,7 +16,7 @@ import {
   NMessageProvider,
   zhCN
 } from 'naive-ui'
-import { useSystemStore } from '@/pinia/system'
+import { useSystemStore } from '@/store/system'
 
 const systemStore = useSystemStore()
 

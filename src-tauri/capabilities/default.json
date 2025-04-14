@@ -9,6 +9,8 @@
     "core:app:allow-default-window-icon",
     "core:default",
     "opener:default",
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-read-text",
     "core:app:allow-set-app-theme",
     "core:window:default",
     "core:window:allow-start-dragging",

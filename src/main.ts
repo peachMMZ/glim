@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
-import { useSystemStore } from '@/pinia/system'
+import { useSystemStore } from '@/store/system'
 import 'vfonts/FiraCode.css'
 import 'virtual:uno.css'
 
