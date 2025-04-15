@@ -10,20 +10,11 @@ struct AppState {
   app_handle: AppHandle,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Default)]
 pub struct ServerState {
   ip: Option<String>,
   port: Option<u16>,
   running: bool
-}
-impl Default for ServerState {
-  fn default() -> Self {
-    ServerState {
-      ip: None,
-      port: None,
-      running: false
-    }
-  }
 }
 
 static SERVER_STATE: OnceLock<Arc<Mutex<ServerState>>> = OnceLock::new();
@@ -31,13 +22,25 @@ static IS_RUNNING: OnceLock<AtomicBool> = OnceLock::new();
 static SHOULD_SHUTDOWN: OnceLock<AtomicBool> = OnceLock::new();
 static SERVER_HANDLE: OnceLock<Mutex<Option<JoinHandle<()>>>> = OnceLock::new();
 
+fn init_globals() -> (&'static AtomicBool, &'static Mutex<Option<JoinHandle<()>>>, 
+    &'static AtomicBool, &'static Arc<Mutex<ServerState>>) {
+    (
+        IS_RUNNING.get_or_init(|| AtomicBool::new(false)),
+        SERVER_HANDLE.get_or_init(|| Mutex::new(None)),
+        SHOULD_SHUTDOWN.get_or_init(|| AtomicBool::new(false)),
+        SERVER_STATE.get_or_init(|| Arc::new(Mutex::new(ServerState::default())))
+    )
+}
+
 #[tauri::command]
 pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, String> {
 
-  let is_running = IS_RUNNING.get_or_init(|| AtomicBool::new(false));
-  let handle_storage = SERVER_HANDLE.get_or_init(|| Mutex::new(None));
-  let should_shutdown = SHOULD_SHUTDOWN.get_or_init(|| AtomicBool::new(false));
-  let server_state_mutex = SERVER_STATE.get_or_init(|| Arc::new(Mutex::new(ServerState::default())));
+  let (
+    is_running, 
+    handle_storage, 
+    should_shutdown, 
+    server_state_mutex
+  ) = init_globals();
 
   if is_running.load(Ordering::SeqCst) {
     return Err("Server is already running".to_string());
@@ -84,11 +87,13 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
 
 #[tauri::command]
 pub async fn stop_server() -> Result<String, String> {
-  let is_running = IS_RUNNING.get_or_init(|| AtomicBool::new(false));
-  let handle_storage = SERVER_HANDLE.get_or_init(|| Mutex::new(None));
-  let should_shutdown = SHOULD_SHUTDOWN.get_or_init(|| AtomicBool::new(false));
-  let server_state_mutex = SERVER_STATE.get_or_init(|| Arc::new(Mutex::new(ServerState::default())));
-
+  let (
+    is_running, 
+    handle_storage, 
+    should_shutdown, 
+    server_state_mutex
+  ) = init_globals();
+  
   if !is_running.load(Ordering::SeqCst) {
     return Err("Server is not running".to_string());
   }

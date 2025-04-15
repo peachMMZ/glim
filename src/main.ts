@@ -6,6 +6,12 @@ import { useSystemStore } from '@/store/system'
 import 'vfonts/FiraCode.css'
 import 'virtual:uno.css'
 
+function disableWebviewFeatures() {
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault()
+  })
+}
+
 async function initStore() {
   const systemStore = useSystemStore()
   await systemStore.init()
@@ -13,6 +19,8 @@ async function initStore() {
 
 async function main() {
   const initStartTime = Date.now()
+
+  disableWebviewFeatures()
 
   const app = createApp(App)
   const pinia = createPinia()
