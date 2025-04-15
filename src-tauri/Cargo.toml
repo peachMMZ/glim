@@ -26,4 +26,5 @@ tauri-plugin-store = "2"
 axum = "0.8.3"
 tokio = "1.44.2"
 tauri-plugin-clipboard-manager = "2"
+tower-http = { version = "0.6.2", features = ["fs", "cors"] }
 

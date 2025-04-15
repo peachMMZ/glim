@@ -1,13 +1,16 @@
+mod controller;
+
 use axum::{
-  response::Html, routing::get, Router
+  routing::get, Router
 };
 use serde::Serialize;
 use tokio::{sync::Mutex, task::JoinHandle};
 use std::{net::{SocketAddr, UdpSocket}, sync::{atomic::{AtomicBool, Ordering}, Arc, OnceLock}};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
+use tower_http::{cors::{Any, CorsLayer}, services::ServeDir};
 
 struct AppState {
-  app_handle: AppHandle,
+  app_handle: AppHandle
 }
 
 #[derive(Serialize, Clone, Default)]
@@ -48,12 +51,28 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
 
   should_shutdown.store(false, Ordering::SeqCst);
 
+  let client_path = app
+    .path()
+    .resolve("client", tauri::path::BaseDirectory::AppData)
+    .expect("Failed to parse path")
+    .to_str()
+    .expect("Failed to convert path to string")
+    .to_string();
+  println!("Client path: {}", client_path);
+
   let state = Arc::new(AppState { app_handle: app });
   let state_for_emit = state.clone();
 
+  let cors = CorsLayer::new()
+    .allow_methods(Any)
+    .allow_origin(Any)
+    .allow_headers(Any);
+
   let router = Router::new()
-    .route("/", get(index_handler))
-    .with_state(state);
+    .route("/api/hello", get(controller::hello_handler))
+    .with_state(state)
+    .layer(cors)
+    .fallback_service(ServeDir::new(client_path));
 
   let ip = get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
 
@@ -126,9 +145,7 @@ async fn shutdown_signal() {
   }
 }
 
-async fn index_handler() -> Html<&'static str> {
-  Html(include_str!("../html/index.html"))
-}
+
 
 #[tauri::command]
 pub async fn server_state() -> Result<ServerState, String> {
