@@ -1,18 +1,23 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { listen } from '@tauri-apps/api/event'
 import { PushData } from '@/types/server'
+import { ShareSpaceMessage } from '@/types/share'
 
 export const useShareSpace = defineStore('share', () => {
-  const dataList = ref<PushData<string>[]>([])
-  const textDataList = computed(() => dataList.value.filter(item => item.pushType === 'Text'))
+  const dataList = ref<PushData[]>([])
+  const textList = ref<ShareSpaceMessage[]>([])
 
   const init = async () => {
-    listen<PushData<string>>('glim://push-data', (event) => {
+    listen<PushData>('glim://push-data', (event) => {
       const data = event.payload
+      dataList.value.push(data)
       switch (data.pushType) {
         case 'Text':
-          dataList.value.push(data)
+          textList.value.push({
+            time: data.time,
+            text: data.payload as string
+          })
           break
         default:
           break
@@ -20,9 +25,18 @@ export const useShareSpace = defineStore('share', () => {
     })
   }
 
+  const pushText = (text: string) => {
+    textList.value.push({
+      time: Date.now(),
+      text,
+      sendByMe: true
+    })
+  }
+
   return {
     dataList,
-    textDataList,
+    textList,
+    pushText,
     init
   }
 })
