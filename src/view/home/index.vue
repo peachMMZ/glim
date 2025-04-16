@@ -18,7 +18,7 @@
                 </div>
               </div>
               <div class="flex items-center">
-                <NButton text :render-icon="renderIcon(Settings2)" @click="serverSettingShow = true">服务设置</NButton>
+                <NButton text :render-icon="renderIcon(Settings2)" @click="showServerSetting">服务设置</NButton>
               </div>
             </div>
 
@@ -123,6 +123,13 @@ const serverSetting = ref<ServerSetting>({
   port: 8090
 })
 const serverSettingShow = ref(false)
+function showServerSetting() {
+  if (serverState.value?.running) {
+    message.warning('服务正在运行中，请先停止服务')
+    return
+  }
+  serverSettingShow.value = true
+}
 const address = computed(() => {
   if (serverState.value?.running) {
     return `http://${serverState.value.ip}:${serverState.value?.port}`

@@ -1,6 +1,7 @@
 mod controller;
+mod response;
 
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use serde::Serialize;
 use std::{
     net::{SocketAddr, UdpSocket},
@@ -16,7 +17,7 @@ use tower_http::{
     services::ServeDir,
 };
 
-struct AppState {
+pub struct AppState {
     app_handle: AppHandle,
 }
 
@@ -75,6 +76,7 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
 
     let router = Router::new()
         .route("/api/hello", get(controller::hello_handler))
+        .route("/api/push/message", post(controller::push_message_handler))
         .with_state(state)
         .layer(cors)
         .fallback_service(ServeDir::new(client_path));
@@ -99,7 +101,7 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
     let url = format!("http://{}:{}", ip, port);
     state_for_emit
         .app_handle
-        .emit("server_start", &url)
+        .emit("server-start", &url)
         .unwrap();
 
     // 更新 ServerState

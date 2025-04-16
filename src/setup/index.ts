@@ -2,6 +2,7 @@ import { App } from "vue"
 import { createPinia } from 'pinia'
 import router from '@/router'
 import { useSystemStore } from '@/store/system'
+import { useShareSpace } from '@/store/share'
 import { createDiscreteApi, type NotificationApi } from 'naive-ui'
 
 let globalNotification: NotificationApi
@@ -37,6 +38,8 @@ function setupRouter(app: App) {
 async function initStore() {
   const systemStore = useSystemStore()
   await systemStore.init()
+  const shareSpace = useShareSpace()
+  await shareSpace.init()
 }
 
 function errorHandler(error: unknown, info?: string) {

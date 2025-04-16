@@ -14,7 +14,7 @@
         <NLayoutHeader ref="header" class="h-12" bordered>
           <Header @collapsed="handleCollapsed" />
         </NLayoutHeader>
-        <NLayoutContent class="h-[calc(100%-5rem)]" content-style="padding: 5px;overflow-y: hidden">
+        <NLayoutContent class="h-[calc(100%-5rem)]" content-style="overflow-y: hidden">
           <RouterView>
             <template #default="{ Component, route }">
               <Transition name="fade" mode="out-in">
