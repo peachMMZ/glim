@@ -5,7 +5,9 @@
     :theme-overrides="systemStore.naiveThemeOverride"
   >
     <NMessageProvider>
-      <RouterView />
+      <NModalProvider>
+        <RouterView />
+      </NModalProvider>
     </NMessageProvider>
   </NConfigProvider>
 </template>
@@ -14,6 +16,7 @@
 import {
   NConfigProvider,
   NMessageProvider,
+  NModalProvider,
   zhCN
 } from 'naive-ui'
 import { useSystemStore } from '@/store/system'

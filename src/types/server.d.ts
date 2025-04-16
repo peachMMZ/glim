@@ -4,3 +4,6 @@ export interface ServerState {
   port?: number
 }
 
+export interface ServerSetting {
+  port: number
+}

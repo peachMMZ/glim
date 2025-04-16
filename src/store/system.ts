@@ -21,8 +21,8 @@ const defaultTheme = (): GlobalThemeOverrides => ({
 
 export const useSystemStore = defineStore('system', () => {
 
-  const localSettingStore = new LazyStore('setting.json')
-  const localThemeStore = new LazyStore('theme-overrides.json')
+  const localSettingStore = new LazyStore('conf/setting.json')
+  const localThemeStore = new LazyStore('conf/theme-overrides.json')
 
   const osTheme = useOsTheme()
   const theme = ref<Theme>(osTheme.value || 'light')
