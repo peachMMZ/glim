@@ -10,7 +10,7 @@
       </div>
     </div>
     <NScrollbar ref="scrollbar" class="max-h-[calc(100%-25px)]">
-      <div ref="scrollContent" class="flex flex-col p-2 gap-y-4">
+      <div ref="scrollContent" class="flex flex-col p-x-4 p-y-2 gap-y-4">
         <Bubble
           v-for="(item, index) in shareSpace.textList"
           :key="index"
@@ -44,8 +44,8 @@ const toolbarStyle = computed(() => ({
 
 const scrollbarRef = useTemplateRef<ScrollbarInst>('scrollbar')
 const scrollContent = useTemplateRef<HTMLDivElement>('scrollContent')
-watchEffect(() => {
-  if (scrollbarRef.value && scrollContent.value && shareSpace.textList.length > 0) {
+function scrollToBottom() {
+  if (scrollbarRef.value && scrollContent.value) {
     nextTick(() => {
       scrollbarRef.value?.scrollTo(
         {
@@ -54,6 +54,12 @@ watchEffect(() => {
         }
       )
     })
+  }
+
+}
+watchEffect(() => {
+  if (shareSpace.textList.length > 0) {
+    scrollToBottom()
   }
 })
 </script>

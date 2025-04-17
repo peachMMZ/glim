@@ -12,7 +12,13 @@
         <DeviceList />
       </template>
       <template #2>
-        <NSplit direction="vertical" :default-size="0.65" :resize-trigger-size="2">
+        <NSplit
+          direction="vertical"
+          :default-size="0.65"
+          :resize-trigger-size="2"
+          :max="0.8"
+          :min="0.5"
+        >
           <template #1>
             <ChatPanel />
           </template>
