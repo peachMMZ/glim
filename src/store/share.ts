@@ -1,8 +1,9 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { listen } from '@tauri-apps/api/event'
-import { PushData } from '@/types/server'
+import { PushData, WebSocketMessage } from '@/types/server'
 import { ShareSpaceMessage } from '@/types/share'
+import { invoke } from '@tauri-apps/api/core'
 
 export const useShareSpace = defineStore('share', () => {
   const dataList = ref<PushData[]>([])
@@ -23,6 +24,22 @@ export const useShareSpace = defineStore('share', () => {
           break
       }
     })
+    listen<WebSocketMessage>('glim://ws-recv', (event) => {
+      console.log(event.payload)
+      switch (event.payload.messageType) {
+        case 'Text':
+          if (event.payload.text) {
+            textList.value.push({
+              time: Date.now(),
+              text: event.payload.text,
+              sendByMe: false
+            })
+          }
+          break
+        default:
+          break
+      }
+    })
   }
 
   const pushText = (text: string) => {
@@ -30,6 +47,9 @@ export const useShareSpace = defineStore('share', () => {
       time: Date.now(),
       text,
       sendByMe: true
+    })
+    invoke('send_ws_message', { message: text }).then((res) => {
+      console.log(res)
     })
   }
 

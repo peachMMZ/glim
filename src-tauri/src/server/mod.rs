@@ -1,17 +1,19 @@
 mod controller;
 mod response;
+mod websocket;
+mod util;
 
-use axum::{routing::{get, post}, Router};
+use axum::{extract::{ws::Message, WebSocketUpgrade}, routing::{get, post}, Router};
 use serde::Serialize;
 use std::{
-    net::{SocketAddr, UdpSocket},
+    net::SocketAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, OnceLock,
     },
 };
 use tauri::{AppHandle, Emitter, Manager};
-use tokio::{sync::Mutex, task::JoinHandle};
+use tokio::{sync::{broadcast, Mutex}, task::JoinHandle};
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
@@ -32,24 +34,33 @@ static SERVER_STATE: OnceLock<Arc<Mutex<ServerState>>> = OnceLock::new();
 static IS_RUNNING: OnceLock<AtomicBool> = OnceLock::new();
 static SHOULD_SHUTDOWN: OnceLock<AtomicBool> = OnceLock::new();
 static SERVER_HANDLE: OnceLock<Mutex<Option<JoinHandle<()>>>> = OnceLock::new();
+static ACTIVE_WS_CONNECTIONS: OnceLock<Arc<Mutex<Vec<broadcast::Sender<Message>>>>> = OnceLock::new();
 
 fn init_globals() -> (
     &'static AtomicBool,
     &'static Mutex<Option<JoinHandle<()>>>,
     &'static AtomicBool,
     &'static Arc<Mutex<ServerState>>,
+    &'static Arc<Mutex<Vec<broadcast::Sender<Message>>>>,
 ) {
     (
         IS_RUNNING.get_or_init(|| AtomicBool::new(false)),
         SERVER_HANDLE.get_or_init(|| Mutex::new(None)),
         SHOULD_SHUTDOWN.get_or_init(|| AtomicBool::new(false)),
         SERVER_STATE.get_or_init(|| Arc::new(Mutex::new(ServerState::default()))),
+        ACTIVE_WS_CONNECTIONS.get_or_init(|| Arc::new(Mutex::new(Vec::new()))),
     )
 }
 
 #[tauri::command]
 pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, String> {
-    let (is_running, handle_storage, should_shutdown, server_state_mutex) = init_globals();
+    let (
+        is_running,
+        handle_storage,
+        should_shutdown,
+        server_state_mutex,
+        active_ws_connections
+    ) = init_globals();
 
     if is_running.load(Ordering::SeqCst) {
         return Err("Server is already running".to_string());
@@ -74,14 +85,25 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
         .allow_origin(Any)
         .allow_headers(Any);
 
+    // 创建广播通道
+    let (tx, _) = broadcast::channel(100);
+    let mut connections = active_ws_connections.lock().await;
+    connections.push(tx.clone());
+    
     let router = Router::new()
+        .route("/ws", get(|ws: WebSocketUpgrade, state| {
+            let connections = active_ws_connections.clone();
+            async move {
+                ws.on_upgrade(move |socket| websocket::websocket_handler(socket, tx, connections, state))
+            }
+        }))
         .route("/api/hello", get(controller::hello_handler))
         .route("/api/push/message", post(controller::push_message_handler))
         .with_state(state)
         .layer(cors)
         .fallback_service(ServeDir::new(client_path));
 
-    let ip = get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
+    let ip = util::get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr)
@@ -116,11 +138,18 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
 
 #[tauri::command]
 pub async fn stop_server() -> Result<String, String> {
-    let (is_running, handle_storage, should_shutdown, server_state_mutex) = init_globals();
+    let (is_running, handle_storage, should_shutdown, server_state_mutex, active_ws_connections) = init_globals();
 
     if !is_running.load(Ordering::SeqCst) {
         return Err("Server is not running".to_string());
     }
+
+    // 清空ws连接
+    let mut connections = active_ws_connections.lock().await;
+    for tx in connections.iter() {
+        let _ = tx.send(Message::Close(None));
+    }
+    connections.clear();
 
     should_shutdown.store(true, Ordering::SeqCst);
 
@@ -158,17 +187,19 @@ pub async fn server_state() -> Result<ServerState, String> {
     Ok(server_state.clone())
 }
 
-pub fn get_local_ip() -> Option<String> {
-    let socket = match UdpSocket::bind("0.0.0.0:0") {
-        Ok(s) => s,
-        Err(_) => return None,
-    };
-    match socket.connect("8.8.8.8:80") {
-        Ok(()) => (),
-        Err(_) => return None,
+#[tauri::command]
+pub async fn send_ws_message(message: String) -> Result<(), String> {
+    let (_, _, _, _, active_ws_connections) = init_globals();
+    let connections = active_ws_connections.lock().await;
+    if connections.is_empty() {
+        return Err("No active connections".to_string());
     }
-    match socket.local_addr() {
-        Ok(addr) => Some(addr.ip().to_string()),
-        Err(_) => None,
+
+    for tx in connections.iter() {
+        if tx.send(Message::Text(message.clone().into())).is_err() {
+            return Err("Failed to send message".to_string());
+        }
     }
+
+    Ok(())
 }

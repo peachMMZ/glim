@@ -13,3 +13,9 @@ export interface PushData<T = unknown> {
   pushType: 'Text' | 'Image' | 'Audio',
   payload: T
 }
+
+export interface WebSocketMessage {
+  text?: string,
+  binary?: Uint8Array,
+  messageType: 'Text' | 'Binary' | 'Ping' | 'Pong' | 'Close'
+}

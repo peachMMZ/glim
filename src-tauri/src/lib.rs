@@ -17,7 +17,8 @@ pub fn run() {
             greet,
             server::start_server,
             server::stop_server,
-            server::server_state
+            server::server_state,
+            server::send_ws_message
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
