@@ -18,7 +18,8 @@ pub fn run() {
             server::start_server,
             server::stop_server,
             server::server_state,
-            server::send_ws_message
+            server::websocket::send_ws_message,
+            server::websocket::get_ws_connections
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

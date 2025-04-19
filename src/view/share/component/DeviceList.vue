@@ -1,12 +1,23 @@
 <template>
   <div class="h-full">
-    <NScrollbar class="h-full">
+    <div class="h-12" :style="{ backgroundColor: themeVars.actionColor }">
+      <div class="flex items-center justify-between h-full gap-x-2 px-4">
+        <NInput v-model:value="filterValue" placeholder="搜索" size="small" />
+        <NButton
+          text
+          :render-icon="renderIcon(RefreshCw)"
+          :loading="refreshing"
+          @click="refreshDeviceList"
+        ></NButton>
+      </div>
+    </div>
+    <NScrollbar class="h-[calc(100%-12rem)]">
       <div
         v-for="device in devices"
         class="p-4 device-item transition-all duration-300 hover:bg-gray-50 hover:shadow-md cursor-pointer"
         :key="device.id"
         :style="{ backgroundColor: device.id === selecedId ? themeVars.primaryColor : themeVars.actionColor }"
-        @click="selecedId = device.id"
+        @click="onSelectDevice(device.id)"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
@@ -26,23 +37,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import {
   NScrollbar,
   NAvatar,
   NText,
+  NInput,
+  NButton,
   useThemeVars
 } from 'naive-ui'
+import { RefreshCw } from 'lucide-vue-next'
+import { useShareSpace } from '@/store/share'
+import { renderIcon } from '@/util/render'
+
+const emits = defineEmits<{
+  (e: 'select', value: string): void
+}>()
 
 const themeVars = useThemeVars()
+const shareSpace = useShareSpace()
 
-const selecedId = ref(1)
-const devices = ref([
-  { id: 1, name: 'Device 1', type: 'Android', recentTime: '16:30' },
-  { id: 2, name: 'Device 2', type: 'iOS', recentTime: '16:30' },
-  { id: 3, name: 'Device 3', type: 'Windows', recentTime: '16:30' },
-  { id: 4, name: 'Device 4', type: 'MacOS', recentTime: '16:30' }
-])
+const selecedId = computed(() => shareSpace.currentRoom?.id)
+const filterValue = ref<string>()
+const devices = computed(() => {
+  if (!filterValue.value) {
+    return shareSpace.deviceList
+  } else {
+    const filter = filterValue.value.toLowerCase()
+    return shareSpace.deviceList.filter((device) => {
+      return device.name.toLowerCase().includes(filter) || device.type.toLowerCase().includes(filter)
+    })
+  }
+})
+
+function onSelectDevice(id: string) {
+  shareSpace.setCurrentRoom(id)
+  emits('select', id)
+}
+
+const refreshing = ref(false)
+function refreshDeviceList() {
+  refreshing.value = true
+  shareSpace.getDeviceList().finally(() => {
+    refreshing.value = false
+  })
+}
+
+onMounted(() => {
+})
 </script>
 <style scoped>
 .device-item:hover {

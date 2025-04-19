@@ -1481,6 +1481,7 @@ dependencies = [
  "tauri-plugin-store",
  "tokio",
  "tower-http",
+ "uuid",
 ]
 
 [[package]]

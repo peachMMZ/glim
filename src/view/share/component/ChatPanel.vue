@@ -12,10 +12,10 @@
     <NScrollbar ref="scrollbar" class="max-h-[calc(100%-25px)]">
       <div ref="scrollContent" class="flex flex-col p-x-4 p-y-2 gap-y-4">
         <Bubble
-          v-for="(item, index) in shareSpace.textList"
+          v-for="(item, index) in shareSpace.currentRoom?.messageList"
           :key="index"
           :text="item.text"
-          :time="item.time"
+          :time="item.timestamp"
           :reversed="item.sendByMe"
         />
       </div>
@@ -58,7 +58,7 @@ function scrollToBottom() {
 
 }
 watchEffect(() => {
-  if (shareSpace.textList.length > 0) {
+  if (shareSpace.currentRoom?.messageList && shareSpace.currentRoom.messageList.length > 0) {
     scrollToBottom()
   }
 })

@@ -101,7 +101,7 @@ function handleDropdownSelect(key: string, data: BubbleOptions) {
   }
   showDropdown.value = false
 }
-const timeFormat = computed(() => isSameDay(props.time) ? 'HH:mm:ss' : 'yyyy-MM-dd HH:mm:ss')
+const timeFormat = computed(() => isSameDay(props.time) ? 'HH:mm' : 'yyyy-MM-dd HH:mm')
 function isSameDay(time: BubbleOptions['time']) {
   if (time) {
     return new Date(time).toDateString() === new Date().toDateString()

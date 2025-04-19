@@ -31,7 +31,7 @@ function handleEnter(event: KeyboardEvent) {
   event.preventDefault()
   const text = editor.value?.textContent
   if (text) {
-    shareSpace.pushText(text)
+    shareSpace.sendWsMessage(text)
     editor.value.textContent = ''
   }
 }

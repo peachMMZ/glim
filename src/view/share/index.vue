@@ -13,6 +13,7 @@
       </template>
       <template #2>
         <NSplit
+          v-if="shareSpace.currentRoom"
           direction="vertical"
           :default-size="0.65"
           :resize-trigger-size="2"
@@ -26,6 +27,11 @@
             <Editor />
           </template>
         </NSplit>
+        <div v-else class="h-full">
+          <div class="flex flex-col justify-center items-center h-full text-gray-400">
+            <img class="opacity-50" src="/app-icon.png">
+          </div>
+        </div>
       </template>
     </NSplit>
   </div>
@@ -38,4 +44,7 @@ import {
 import DeviceList from './component/DeviceList.vue'
 import ChatPanel from './component/ChatPanel.vue'
 import Editor from './component/Editor.vue'
+import { useShareSpace } from '@/store/share'
+
+const shareSpace = useShareSpace()
 </script>

@@ -2,7 +2,7 @@
   <div>
     <NModal
       v-model:show="show"
-      class="w-1/2"
+      class="w-auto"
       preset="card"
       title="服务设置"
       draggable

@@ -9,13 +9,7 @@ export interface ServerSetting {
 }
 
 export interface PushData<T = unknown> {
-  time: number,
-  pushType: 'Text' | 'Image' | 'Audio',
+  time: number
+  pushType: 'Text' | 'Image' | 'Audio'
   payload: T
-}
-
-export interface WebSocketMessage {
-  text?: string,
-  binary?: Uint8Array,
-  messageType: 'Text' | 'Binary' | 'Ping' | 'Pong' | 'Close'
 }

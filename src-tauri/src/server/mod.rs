@@ -1,9 +1,9 @@
 mod controller;
 mod response;
-mod websocket;
+pub mod websocket;
 mod util;
 
-use axum::{extract::{ws::Message, WebSocketUpgrade}, routing::{get, post}, Router};
+use axum::{extract::{ws::Message, WebSocketUpgrade}, http::HeaderMap, routing::{get, post}, Router};
 use serde::Serialize;
 use std::{
     net::SocketAddr,
@@ -13,7 +13,7 @@ use std::{
     },
 };
 use tauri::{AppHandle, Emitter, Manager};
-use tokio::{sync::{broadcast, Mutex}, task::JoinHandle};
+use tokio::{sync::Mutex, task::JoinHandle};
 use tower_http::{
     cors::{Any, CorsLayer},
     services::ServeDir,
@@ -34,14 +34,14 @@ static SERVER_STATE: OnceLock<Arc<Mutex<ServerState>>> = OnceLock::new();
 static IS_RUNNING: OnceLock<AtomicBool> = OnceLock::new();
 static SHOULD_SHUTDOWN: OnceLock<AtomicBool> = OnceLock::new();
 static SERVER_HANDLE: OnceLock<Mutex<Option<JoinHandle<()>>>> = OnceLock::new();
-static ACTIVE_WS_CONNECTIONS: OnceLock<Arc<Mutex<Vec<broadcast::Sender<Message>>>>> = OnceLock::new();
+pub static ACTIVE_WS_CONNECTIONS: OnceLock<Arc<Mutex<Vec<websocket::WebsocketConnection>>>> = OnceLock::new();
 
-fn init_globals() -> (
+pub fn init_globals() -> (
     &'static AtomicBool,
     &'static Mutex<Option<JoinHandle<()>>>,
     &'static AtomicBool,
     &'static Arc<Mutex<ServerState>>,
-    &'static Arc<Mutex<Vec<broadcast::Sender<Message>>>>,
+    &'static Arc<Mutex<Vec<websocket::WebsocketConnection>>>,
 ) {
     (
         IS_RUNNING.get_or_init(|| AtomicBool::new(false)),
@@ -84,19 +84,21 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
         .allow_methods(Any)
         .allow_origin(Any)
         .allow_headers(Any);
-
-    // 创建广播通道
-    let (tx, _) = broadcast::channel(100);
-    let mut connections = active_ws_connections.lock().await;
-    connections.push(tx.clone());
     
     let router = Router::new()
-        .route("/ws", get(|ws: WebSocketUpgrade, state| {
-            let connections = active_ws_connections.clone();
-            async move {
-                ws.on_upgrade(move |socket| websocket::websocket_handler(socket, tx, connections, state))
+        .route("/ws", get(
+            |ws: WebSocketUpgrade, state, headers: HeaderMap| 
+            {
+                let connections = active_ws_connections.clone();
+                async move {
+                    ws.on_upgrade(
+                        move |socket| {
+                            websocket::websocket_handler(headers, socket, connections, state)
+                        }
+                    )
+                }
             }
-        }))
+        ))
         .route("/api/hello", get(controller::hello_handler))
         .route("/api/push/message", post(controller::push_message_handler))
         .with_state(state)
@@ -146,8 +148,8 @@ pub async fn stop_server() -> Result<String, String> {
 
     // 清空ws连接
     let mut connections = active_ws_connections.lock().await;
-    for tx in connections.iter() {
-        let _ = tx.send(Message::Close(None));
+    for connection in connections.iter() {
+        let _ = connection.tx.send(Message::Close(None));
     }
     connections.clear();
 
@@ -187,19 +189,3 @@ pub async fn server_state() -> Result<ServerState, String> {
     Ok(server_state.clone())
 }
 
-#[tauri::command]
-pub async fn send_ws_message(message: String) -> Result<(), String> {
-    let (_, _, _, _, active_ws_connections) = init_globals();
-    let connections = active_ws_connections.lock().await;
-    if connections.is_empty() {
-        return Err("No active connections".to_string());
-    }
-
-    for tx in connections.iter() {
-        if tx.send(Message::Text(message.clone().into())).is_err() {
-            return Err("Failed to send message".to_string());
-        }
-    }
-
-    Ok(())
-}
