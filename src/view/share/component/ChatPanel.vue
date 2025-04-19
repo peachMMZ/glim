@@ -2,7 +2,7 @@
   <div class="h-full">
     <div class="h-12 flex justify-between items-center px-4" :style="toolbarStyle">
       <div class="flex justify-start items-center gap-x-2">
-        <span class="text-lg">Device 1</span>
+        <span class="text-lg">{{ shareSpace.currentRoom?.name }}</span>
         <div class="h-3 w-3 rounded-full bg-green-500"></div>
       </div>
       <div>

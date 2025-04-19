@@ -10,7 +10,6 @@ export interface ShareSpaceDevice {
   name: string | 'unknown'
   type: string | 'unknown'
   userAgent: string
-  recentTime: number | string | Date
 }
 
 export interface ShareSpaceRoom {
@@ -20,4 +19,5 @@ export interface ShareSpaceRoom {
   tempText?: string
   unreadCount?: number
   messageList: ShareSpaceMessage[]
+  recentlyTime?: number
 }

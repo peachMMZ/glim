@@ -9,7 +9,7 @@
       :resize-trigger-size="2"
     >
       <template #1>
-        <DeviceList />
+        <RoomList />
       </template>
       <template #2>
         <NSplit
@@ -41,7 +41,7 @@
 import {
   NSplit
 } from 'naive-ui'
-import DeviceList from './component/DeviceList.vue'
+import RoomList from './component/RoomList.vue'
 import ChatPanel from './component/ChatPanel.vue'
 import Editor from './component/Editor.vue'
 import { useShareSpace } from '@/store/share'

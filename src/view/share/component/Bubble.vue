@@ -8,7 +8,7 @@
       </div>
       <div class="flex flex-col justify-start">
         <div :class="classes.time">
-          <NTime :time="time" :format="timeFormat"></NTime>
+          <GTime :time="props.time" />
         </div>
         <div
           :class="classes.text"
@@ -38,7 +38,6 @@ import { ref, computed, nextTick } from 'vue'
 import {
   NAvatar,
   NText,
-  NTime,
   NDropdown,
   type DropdownOption,
   useThemeVars,
@@ -47,6 +46,7 @@ import {
 import { Copy, Star } from 'lucide-vue-next'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { renderIcon } from '@/util/render'
+import GTime from '@/components/GTime.vue'
 
 const themeVars = useThemeVars()
 const message = useMessage()
@@ -100,14 +100,6 @@ function handleDropdownSelect(key: string, data: BubbleOptions) {
       break
   }
   showDropdown.value = false
-}
-const timeFormat = computed(() => isSameDay(props.time) ? 'HH:mm' : 'yyyy-MM-dd HH:mm')
-function isSameDay(time: BubbleOptions['time']) {
-  if (time) {
-    return new Date(time).toDateString() === new Date().toDateString()
-  } else {
-    return false
-  }
 }
 </script>
 <style scoped></style>

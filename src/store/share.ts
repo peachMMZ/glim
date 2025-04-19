@@ -31,8 +31,7 @@ export const useShareSpace = defineStore('share', () => {
       id: connection.id,
       userAgent: connection.userAgent,
       name: parser.getDevice().vendor || 'unknown',
-      type: parser.getOS().name || 'unknown',
-      recentTime: '00:11'
+      type: parser.getOS().name || 'unknown'
     }
   }
 
@@ -52,6 +51,9 @@ export const useShareSpace = defineStore('share', () => {
     const payload = event.payload
     deviceList.value = deviceList.value.filter((device) => device.id !== payload)
     roomList.value = roomList.value.filter((room) => room.id !== payload)
+    if (roomList.value.length === 0) {
+      currentRoom.value = null
+    }
   }
 
   const onWsReceive = (event: Event<WebSocketMessage>) => {
@@ -59,6 +61,7 @@ export const useShareSpace = defineStore('share', () => {
     if (!websocketMessage.from) return
     const room = roomList.value.find((room) => room.id === websocketMessage.from)
     if (!room) return
+    room.recentlyTime = websocketMessage.timestamp
     switch (websocketMessage.messageType) {
       case 'Text':
         if (websocketMessage.text) {
@@ -89,6 +92,7 @@ export const useShareSpace = defineStore('share', () => {
       text,
       sendByMe: true
     })
+    currentRoom.value.recentlyTime = wsMessage.timestamp
   }
 
   const getDeviceList = async () => {

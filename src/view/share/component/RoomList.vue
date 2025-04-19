@@ -13,22 +13,24 @@
     </div>
     <NScrollbar class="h-[calc(100%-12rem)]">
       <div
-        v-for="device in devices"
+        v-for="room in roomList"
         class="p-4 device-item transition-all duration-300 hover:bg-gray-50 hover:shadow-md cursor-pointer"
-        :key="device.id"
-        :style="{ backgroundColor: device.id === selecedId ? themeVars.primaryColor : themeVars.actionColor }"
-        @click="onSelectDevice(device.id)"
+        :key="room.id"
+        :style="{ backgroundColor: room.id === selecedId ? themeVars.primaryColor : themeVars.actionColor }"
+        @click="onSelectRoom(room.id)"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-x-2">
             <NAvatar src="/avatar.png" round></NAvatar>
             <div class="flex flex-col">
-              <span>{{ device.name }}</span>
-              <NText class="text-xs" :type="selecedId === device.id ? 'warning' : 'success'">{{ device.type }}</NText>
+              <span>{{ room.name }}</span>
+              <NText class="text-xs" :type="selecedId === room.id ? 'warning' : 'success'">{{ room.device.type }}</NText>
             </div>
           </div>
           <div>
-            <span class="text-xs text-gray">{{ device.recentTime }}</span>
+            <span class="text-xs">
+              <GTime :time="room.recentlyTime" />
+            </span>
           </div>
         </div>
       </div>
@@ -49,6 +51,7 @@ import {
 import { RefreshCw } from 'lucide-vue-next'
 import { useShareSpace } from '@/store/share'
 import { renderIcon } from '@/util/render'
+import GTime from '@/components/GTime.vue'
 
 const emits = defineEmits<{
   (e: 'select', value: string): void
@@ -59,18 +62,18 @@ const shareSpace = useShareSpace()
 
 const selecedId = computed(() => shareSpace.currentRoom?.id)
 const filterValue = ref<string>()
-const devices = computed(() => {
+const roomList = computed(() => {
   if (!filterValue.value) {
-    return shareSpace.deviceList
+    return shareSpace.roomList
   } else {
     const filter = filterValue.value.toLowerCase()
-    return shareSpace.deviceList.filter((device) => {
-      return device.name.toLowerCase().includes(filter) || device.type.toLowerCase().includes(filter)
+    return shareSpace.roomList.filter((room) => {
+      return room.name.toLowerCase().includes(filter) || room.device.type.toLowerCase().includes(filter)
     })
   }
 })
 
-function onSelectDevice(id: string) {
+function onSelectRoom(id: string) {
   shareSpace.setCurrentRoom(id)
   emits('select', id)
 }
