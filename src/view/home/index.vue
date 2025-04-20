@@ -46,6 +46,17 @@
               </div>
               <span v-else class="text-sm text-gray-500">未运行</span>
             </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-x-2">
+                <NIcon :component="TabletSmartphone" :size="20" class="text-gray-500" />
+                <span class="text-gray-600">连接设备({{ shareSpace.deviceList.length }})</span>
+              </div>
+              <div v-if="serverState?.running" class="flex items-center gap-x-2">
+                <NEllipsis tooltip style="max-width: 200px;">
+                  {{ shareSpace.deviceList.map(device => device.name).join(', ') }}
+                </NEllipsis>
+              </div>
+            </div>
           </div>
 
           <div class="flex justify-end gap-x-3">
@@ -100,20 +111,23 @@ import {
   NGrid,
   NGridItem,
   NText,
+  NEllipsis,
   useMessage
 } from 'naive-ui'
 import { ShareSpace, HistoryRecord, Download, Upload, Trash, SystemManage, ResourceManage } from '@/util/icon'
-import { Server, Power, PowerOff, Copy, Activity, Globe, Settings2 } from 'lucide-vue-next'
+import { Server, Power, PowerOff, Copy, Activity, Globe, TabletSmartphone, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { serverService } from '@/service/server'
 import type { ServerSetting, ServerState } from '@/types/server'
 import { renderIcon } from '@/util/render'
+import { useShareSpace } from '@/store/share'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import ServerSettingModal from './component/ServerSettingModal.vue'
 
 const message = useMessage()
 const router = useRouter()
+const shareSpace = useShareSpace()
 
 const serverState = ref<ServerState | null>(null)
 const serverSetting = ref<ServerSetting>({
