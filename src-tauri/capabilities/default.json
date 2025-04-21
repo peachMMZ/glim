@@ -24,6 +24,12 @@
       "allow": [
         { "path": "$APPDATA/*" }
       ]
+    },
+    {
+      "identifier": "fs:allow-app-write",
+      "allow": [
+        { "path": "$APPDATA/*" }
+      ]
     }
   ]
 }

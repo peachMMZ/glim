@@ -1,7 +1,7 @@
 mod controller;
 mod response;
 pub mod websocket;
-mod util;
+pub mod util;
 
 use axum::{extract::{ws::Message, WebSocketUpgrade}, http::HeaderMap, routing::{get, post}, Router};
 use serde::Serialize;
