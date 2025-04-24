@@ -53,7 +53,7 @@ import { Download } from 'lucide-vue-next'
 import { glimClientService } from '@/service/client'
 import { Client } from '@/types/client'
 import { renderIcon } from '@/util/render'
-import { download } from '@/util/http'
+import { download } from '@tauri-apps/plugin-upload'
 import { appDataDir, join } from '@tauri-apps/api/path'
 import { formatSize } from '@/util/format'
 
@@ -70,10 +70,8 @@ function fetchData() {
 
 async function downloadAsset(url: string, filename: string) {
   const output = await join(await appDataDir(), filename)
-  download(url, output, {
-    progress: ({ total, transferred, percentage }) => {
-      console.log(`${transferred}/${total} ${percentage}%`)
-    }
+  await download(url, output, ({ progress, total }) => {
+    console.log(`Downloaded ${progress} of ${total} bytes`)
   })
 }
 

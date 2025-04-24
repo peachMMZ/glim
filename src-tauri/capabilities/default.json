@@ -38,6 +38,7 @@
         { "url": "https://api.github.com/**" },
         { "url": "https://github.com/**" }
       ]
-    }
+    },
+    "upload:default"
   ]
 }

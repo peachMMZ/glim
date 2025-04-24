@@ -32,3 +32,4 @@ futures = "0.3.31"
 uuid = { version = "1.16.0", features = ["v4"] }
 zip = "2.6.1"
 tauri-plugin-http = "~2.3.0"
+tauri-plugin-upload = "2"

@@ -720,6 +720,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/plugin-upload@npm:~2":
+  version: 2.2.1
+  resolution: "@tauri-apps/plugin-upload@npm:2.2.1"
+  dependencies:
+    "@tauri-apps/api": "npm:^2.0.0"
+  checksum: 10c0/4815fba883a0796dea01b6ca3a17624034c079f75f06d6e1a8441995be51ae65b87e02355590ea26cd9203853c118ec61b0281f7207460afe9fcdbdbc6601d36
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:1.0.7":
   version: 1.0.7
   resolution: "@types/estree@npm:1.0.7"
@@ -1988,6 +1997,7 @@ __metadata:
     "@tauri-apps/plugin-http": "npm:~2.3.0"
     "@tauri-apps/plugin-opener": "npm:^2"
     "@tauri-apps/plugin-store": "npm:~2"
+    "@tauri-apps/plugin-upload": "npm:~2"
     "@types/node": "npm:^22.14.0"
     "@vitejs/plugin-vue": "npm:^5.2.1"
     "@vueuse/core": "npm:^13.1.0"
