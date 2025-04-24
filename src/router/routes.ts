@@ -1,7 +1,8 @@
 import {
   Home,
   Settings,
-  MessageSquare
+  MessageSquare,
+  Router
 } from 'lucide-vue-next'
 import { RouteRecordRaw } from 'vue-router'
 
@@ -42,6 +43,16 @@ const routes: RouteRecordRaw[] = [
           keepAlive: true,
         },
         component: () => import('@/view/share/index.vue')
+      },
+      {
+        path: '/client',
+        name: 'client',
+        meta: {
+          title: '客户端',
+          icon: Router,
+          keepAlive: true,
+        },
+        component: () => import('@/view/client/index.vue')
       }
     ],
   },

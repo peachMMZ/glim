@@ -1,13 +1,14 @@
+import { fetch } from '@tauri-apps/plugin-http'
+import { toCamelCaseKeys } from 'es-toolkit'
+
 class GlimClientService {
-  async downloadLatest() {
-    const url = import.meta.env.VITE_CLIENT_RELEASE_URL
-    if (!url) {
-      throw new Error("can't find client release url")
+  async getClientList() {
+    const res = await fetch(import.meta.env.VITE_CLIENT_RELEASE_URL)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch client list: ${res.status}(${res.statusText})`)
     }
-    const res = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
-    console.log('res', res)
     const data = await res.json()
-    console.log('data', data)
+    return toCamelCaseKeys(data)
   }
 }
 
