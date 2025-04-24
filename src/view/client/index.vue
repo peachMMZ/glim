@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full m-auto p-t-4">
+  <div class="h-full m-auto">
     <NTabs class="h-full" type="line" placement="left">
       <NTabPane name="local" tab="本地">
       </NTabPane>

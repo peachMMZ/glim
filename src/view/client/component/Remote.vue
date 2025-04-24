@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full">
+  <div class="h-full m-2">
     <NScrollbar class="max-h-[calc(100%-1rem)]">
       <NSpin :show="loading">
         <NList class="min-h-24" hoverable>
