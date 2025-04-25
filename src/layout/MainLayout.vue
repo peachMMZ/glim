@@ -26,7 +26,9 @@
             </template>
           </RouterView>
         </NLayoutContent>
-        <NLayoutFooter ref="footer" class="h-8" bordered></NLayoutFooter>
+        <NLayoutFooter ref="footer" class="h-8" bordered>
+          <Footer />
+        </NLayoutFooter>
       </NLayout>
     </NLayout>
   </div>
@@ -43,6 +45,7 @@ import {
 } from 'naive-ui'
 import Header from './component/Header.vue'
 import Menu from './component/Menu.vue'
+import Footer from './component/Footer.vue'
 
 const collapsed = ref(true)
 function handleCollapsed(value: boolean) {

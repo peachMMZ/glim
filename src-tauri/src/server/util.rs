@@ -41,3 +41,8 @@ pub fn unzip(zip_path: &str, extract_path: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn uuid() -> Result<String, String> {
+    Ok(uuid::Uuid::new_v4().to_string())
+}

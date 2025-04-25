@@ -47,7 +47,8 @@ import {
   NAvatar,
   NTime,
   NButton,
-  NText
+  NText,
+  useMessage
 } from 'naive-ui'
 import { Download } from 'lucide-vue-next'
 import { glimClientService } from '@/service/client'
@@ -56,6 +57,10 @@ import { renderIcon } from '@/util/render'
 import { download } from '@tauri-apps/plugin-upload'
 import { appDataDir, join } from '@tauri-apps/api/path'
 import { formatSize } from '@/util/format'
+import { useTaskStore } from '@/store/task'
+
+const message = useMessage()
+const taskStore = useTaskStore()
 
 const clientList = ref<Client[]>([])
 const loading = ref(false)
@@ -70,9 +75,16 @@ function fetchData() {
 
 async function downloadAsset(url: string, filename: string) {
   const output = await join(await appDataDir(), filename)
-  await download(url, output, ({ progress, total }) => {
-    console.log(`Downloaded ${progress} of ${total} bytes`)
+  const taskId = await taskStore.newDownloadTask({ url, output, name: filename })
+  await download(url, output, (progressPayload) => {
+    console.log(progressPayload)
+    taskStore.updateTask(taskId, {
+      done: progressPayload.progressTotal,
+      total: progressPayload.total,
+      speed: progressPayload.transferSpeed,
+    })
   })
+  message.success(`Download ${filename} success`)
 }
 
 onMounted(() => {

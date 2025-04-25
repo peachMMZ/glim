@@ -23,6 +23,7 @@ pub fn run() {
             server::websocket::send_ws_message,
             server::websocket::get_ws_connections,
             server::util::unzip,
+            server::util::uuid
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
