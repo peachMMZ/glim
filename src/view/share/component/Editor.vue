@@ -9,7 +9,7 @@
             </div>
           </template>
         </GEmojiPicker>
-        <NButton text :render-icon="renderIcon(Image, { size: 24 })"></NButton>
+        <NButton text :render-icon="renderIcon(Image, { size: 24 })" @click="sendImage"></NButton>
       </div>
       <div class="flex justify-end items-center gap-x-4">
         <NButton text :render-icon="renderIcon(Clock, { size: 24 })"></NButton>
@@ -68,6 +68,8 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function newLine() {
+  if (!editor.value) return
+  editor.value.focus()
   const selection = window.getSelection()
   if (!selection) return
   if (selection.rangeCount > 0) {
@@ -116,6 +118,14 @@ function send() {
   }
   editor.value?.focus()  
 }
+
+function sendImage() {
+  const filePath = "" // TODO get file path
+  shareSpace.sendWsFile(filePath).then(() => {
+    console.log("send image success")
+  })
+}
+
 </script>
 <style scoped>
 [contenteditable] {

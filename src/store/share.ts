@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { Event, listen } from '@tauri-apps/api/event'
+import { exists, readFile } from '@tauri-apps/plugin-fs'
 import { ShareSpaceDevice, ShareSpaceRoom } from '@/types/share'
 import { WebsocketConnection, WebSocketMessage } from '@/types/websocket'
 import { websocketService } from '@/service/websocket'
@@ -95,6 +96,24 @@ export const useShareSpace = defineStore('share', () => {
     currentRoom.value.recentlyTime = wsMessage.timestamp
   }
 
+  const sendWsFile = async (filePath: string) => {
+    console.log(filePath)
+    if (!currentRoom.value || !await exists(filePath)) {
+      console.log('file not exists')
+      return
+    }
+    const unit8Array = await readFile(filePath)
+    const filename = filePath.split('/').pop()
+    const wsMessage: WebSocketMessage = {
+      messageType: 'Binary',
+      text: filename,
+      binary: unit8Array,
+      to: currentRoom.value.device.id,
+      timestamp: Date.now()
+    }
+    await websocketService.sendMessage(wsMessage)
+  }
+
   const getDeviceList = async () => {
     const connections = await websocketService.getConnections()
     deviceList.value = connections.map(parseDevice)
@@ -114,6 +133,7 @@ export const useShareSpace = defineStore('share', () => {
     init,
     setCurrentRoom,
     getDeviceList,
-    sendWsMessage
+    sendWsMessage,
+    sendWsFile
   }
 })
