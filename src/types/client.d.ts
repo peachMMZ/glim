@@ -23,6 +23,7 @@ export interface Assets {
 export interface Client {
   id: number
   name: string
+  htmlUrl: string
   tagName: string
   author: GitHubUser
   createdAt: string

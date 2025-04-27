@@ -4,7 +4,13 @@
       <NSpin :show="loading">
         <NList class="min-h-24" hoverable>
           <NListItem v-for="item in clientList" :key="item.id">
-            <NThing :title="item.name">
+            <NThing>
+              <template #header>
+                <div class="flex justify-between items-center gap-x-2">
+                  <NText size="large">{{ item.name }}</NText>
+                  <NButton type="info" text :render-icon="renderIcon(Link, { size: 16 })" @click="openUrl(item.htmlUrl)"></NButton>
+                </div>
+              </template>
               <template #avatar>
                 <NAvatar :src="item.author.avatarUrl" :size="48" />
               </template>
@@ -50,12 +56,13 @@ import {
   NText,
   useMessage
 } from 'naive-ui'
-import { Download } from 'lucide-vue-next'
+import { Download, Link } from 'lucide-vue-next'
 import { glimClientService } from '@/service/client'
 import { Client } from '@/types/client'
 import { renderIcon } from '@/util/render'
 import { download } from '@tauri-apps/plugin-upload'
 import { appDataDir, join } from '@tauri-apps/api/path'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { formatSize } from '@/util/format'
 import { useTaskStore } from '@/store/task'
 

@@ -7,8 +7,6 @@
       <NTabPane class="h-full" name="remote" tab="远程">
         <Remote />
       </NTabPane>
-      <NTabPane name="download" tab="下载">
-      </NTabPane>
     </NTabs>
   </div>
 </template>
