@@ -2,7 +2,13 @@
   <div class="h-full flex flex-col">
     <div class="h-8 flex justify-between items-center p-x-5 p-y-2">
       <div class="flex justify-start items-center gap-x-4">
-        <NButton text :render-icon="renderIcon(Smile, { size: 24 })"></NButton>
+        <GEmojiPicker trigger="click" @pick="pushEmoji">
+          <template #trigger>
+            <div class="flex items-center">
+              <NButton text :render-icon="renderIcon(Smile, { size: 24 })"></NButton>
+            </div>
+          </template>
+        </GEmojiPicker>
         <NButton text :render-icon="renderIcon(Image, { size: 24 })"></NButton>
       </div>
       <div class="flex justify-end items-center gap-x-4">
@@ -45,6 +51,7 @@ import {
 import { Smile, Image, Clock, Send } from 'lucide-vue-next'
 import { renderIcon } from '@/util/render'
 import { useShareSpace } from '@/store/share'
+import GEmojiPicker from '@/components/GEmojiPicker.vue'
 
 const shareSpace = useShareSpace()
 
@@ -79,6 +86,27 @@ const sendDisabled = ref(true)
 function handleInput() {
   const text = editor.value?.textContent
   sendDisabled.value = !text
+}
+function pushEmoji(emoji: string) {
+  if (!editor.value) return
+  editor.value.focus()
+  const selection = window.getSelection()
+  if (!selection || !editor.value) return
+  
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0)
+    range.deleteContents()
+    range.insertNode(document.createTextNode(emoji))
+    range.collapse(false)
+    selection.removeAllRanges()
+    selection.addRange(range)
+    
+    // 触发 input 事件以更新发送按钮状态
+    editor.value.dispatchEvent(new Event('input'))
+  }
+  
+  // 保持编辑器焦点
+  editor.value.focus()
 }
 function send() {
   const text = editor.value?.textContent
