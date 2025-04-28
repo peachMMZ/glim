@@ -5,7 +5,7 @@ export interface GitHubUser {
   type: string
 }
 
-export interface Assets {
+export interface Asset {
   id: number
   name: string
   url: string
@@ -18,9 +18,10 @@ export interface Assets {
   updatedAt: string
   browserDownloadUrl: string
   uploader: GitHubUser
+  localPath?: string
 }
 
-export interface Client {
+export interface Release {
   id: number
   name: string
   htmlUrl: string
@@ -28,5 +29,8 @@ export interface Client {
   author: GitHubUser
   createdAt: string
   publishedAt: string
-  assets: Assets[]
+  assets: Asset[]
+}
+
+export interface Client extends Release {
 }

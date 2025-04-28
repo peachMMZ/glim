@@ -12,7 +12,7 @@ use std::{
         Arc, OnceLock,
     },
 };
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter};
 use tokio::{sync::Mutex, task::JoinHandle};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -53,7 +53,7 @@ pub fn init_globals() -> (
 }
 
 #[tauri::command]
-pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, String> {
+pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String) -> Result<String, String> {
     let (
         is_running,
         handle_storage,
@@ -67,14 +67,8 @@ pub async fn start_server(app: tauri::AppHandle, port: u16) -> Result<String, St
     }
 
     should_shutdown.store(false, Ordering::SeqCst);
-
-    let client_path = app
-        .path()
-        .resolve("client", tauri::path::BaseDirectory::AppData)
-        .expect("Failed to parse path")
-        .to_str()
-        .expect("Failed to convert path to string")
-        .to_string();
+    
+    println!("Starting server on port {}", port);
     println!("Client path: {}", client_path);
 
     let state = Arc::new(AppState { app_handle: app });

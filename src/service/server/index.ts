@@ -1,17 +1,16 @@
 import { invoke } from '@tauri-apps/api/core'
-import { join, appDataDir } from '@tauri-apps/api/path'
-import { exists, BaseDirectory } from '@tauri-apps/plugin-fs'
-import type { ServerState } from '@/types/server'
+import { join } from '@tauri-apps/api/path'
+import { exists } from '@tauri-apps/plugin-fs'
+import type { ServerSetting, ServerState } from '@/types/server'
 
 class ServerService {
-  async startServer(port: number) {
-    const clientExists = await exists('client', { baseDir: BaseDirectory.AppData })
+  async startServer(setting: ServerSetting) {
+    const indexPath = await join(setting.clientPath, 'index.html')
+    const clientExists = await exists(indexPath)
     if (!clientExists) {
-      const appDataDirPath = await appDataDir()
-      const path = await join(appDataDirPath, 'client')
-      throw new Error(`(${path}) does not exists`)
+      throw new Error(`(${indexPath}) does not exists`)
     }
-    return invoke<string>('start_server', { port })
+    return invoke<string>('start_server', { ...setting })
   }
 
   stopServer() {

@@ -94,7 +94,7 @@
         </NGrid>
       </div>
     </div>
-    <ServerSettingModal v-model:show="serverSettingShow" :server-setting="serverSetting" />
+    <ServerSettingModal v-model:show="serverSettingShow" />
   </div>
 </template>
 
@@ -118,21 +118,20 @@ import { ShareSpace, HistoryRecord, Download, Upload, Trash, SystemManage, Resou
 import { Server, Power, PowerOff, Copy, Activity, Globe, TabletSmartphone, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { serverService } from '@/service/server'
-import type { ServerSetting, ServerState } from '@/types/server'
+import type { ServerState } from '@/types/server'
 import { renderIcon } from '@/util/render'
 import { useShareSpace } from '@/store/share'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
+import { useSystemStore } from '@/store/system'
 import ServerSettingModal from './component/ServerSettingModal.vue'
 
 const message = useMessage()
 const router = useRouter()
 const shareSpace = useShareSpace()
+const systemStore = useSystemStore()
 
 const serverState = ref<ServerState | null>(null)
-const serverSetting = ref<ServerSetting>({
-  port: 8090
-})
 const serverSettingShow = ref(false)
 function showServerSetting() {
   if (serverState.value?.running) {
@@ -148,7 +147,7 @@ const address = computed(() => {
 })
 
 function startServer() {
-  serverService.startServer(serverSetting.value.port).then(getServerState)
+  serverService.startServer(systemStore.serverSetting).then(getServerState)
 }
 
 function stopServer() {

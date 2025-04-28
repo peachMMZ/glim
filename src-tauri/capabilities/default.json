@@ -9,6 +9,10 @@
     "core:app:allow-default-window-icon",
     "core:default",
     "opener:default",
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [{ "path": "/**/*" }]
+    },
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-text",
     "core:app:allow-set-app-theme",
@@ -29,6 +33,10 @@
     },
     {
       "identifier": "fs:allow-app-read",
+      "allow": [{ "path": "/**/*" }]
+    },
+    {
+      "identifier": "fs:allow-remove",
       "allow": [{ "path": "/**/*" }]
     },
     {

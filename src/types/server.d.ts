@@ -6,6 +6,7 @@ export interface ServerState {
 
 export interface ServerSetting {
   port: number
+  clientPath: string
 }
 
 export interface PushData<T = unknown> {
