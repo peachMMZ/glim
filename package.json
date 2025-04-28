@@ -37,6 +37,5 @@
     "vfonts": "^0.0.3",
     "vite": "^6.0.3",
     "vue-tsc": "^2.1.10"
-  },
-  "packageManager": "yarn@4.9.1"
+  }
 }
