@@ -1,6 +1,7 @@
 export interface WebsocketConnection {
   id: string
   userAgent: string
+  ip?: string
 }
 
 export interface WebSocketMessage {

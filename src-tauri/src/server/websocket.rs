@@ -1,6 +1,6 @@
-use std::{sync::Arc, time::Duration};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use axum::{body::Bytes, extract::{ws::{Message, Utf8Bytes, WebSocket}, State}, http::HeaderMap};
+use axum::{body::Bytes, extract::{ws::{Message, Utf8Bytes, WebSocket}, ConnectInfo, State}, http::HeaderMap};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::{sync::{mpsc, Mutex}, time::interval};
@@ -13,6 +13,7 @@ use super::AppState;
 pub struct WebsocketConnection {
     pub id: String,
     pub user_agent: Option<String>,
+    pub ip: Option<String>,
     #[serde(skip)]
     pub tx: mpsc::UnboundedSender<Message>,
 }
@@ -99,6 +100,7 @@ impl From<WebSocketMessage> for Message {
 pub async fn websocket_handler(
     headers: HeaderMap,
     socket: WebSocket, 
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     connections: Arc<Mutex<Vec<WebsocketConnection>>>,
     State(state): State<Arc<AppState>>,
 ) {
@@ -115,6 +117,7 @@ pub async fn websocket_handler(
     let new_connection = WebsocketConnection {
         id: connection_id.clone(),
         user_agent: user_agent.map(|s| s.to_string()),
+        ip: Some(addr.ip().to_string()),
         tx: tx.clone(),
     };
     let new_connection_clone = new_connection.clone();

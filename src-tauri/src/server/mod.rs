@@ -3,7 +3,7 @@ mod response;
 pub mod websocket;
 pub mod util;
 
-use axum::{extract::{ws::Message, WebSocketUpgrade}, http::HeaderMap, routing::{get, post}, Router};
+use axum::{extract::{ws::Message, ConnectInfo, WebSocketUpgrade}, http::HeaderMap, routing::{get, post}, Router};
 use serde::Serialize;
 use std::{
     net::SocketAddr,
@@ -81,13 +81,13 @@ pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String)
     
     let router = Router::new()
         .route("/ws", get(
-            |ws: WebSocketUpgrade, state, headers: HeaderMap| 
+            |ws: WebSocketUpgrade, state, headers: HeaderMap, connect_info: ConnectInfo<SocketAddr>| 
             {
                 let connections = active_ws_connections.clone();
                 async move {
                     ws.on_upgrade(
                         move |socket| {
-                            websocket::websocket_handler(headers, socket, connections, state)
+                            websocket::websocket_handler(headers, socket, connect_info, connections, state)
                         }
                     )
                 }
@@ -97,7 +97,8 @@ pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String)
         .route("/api/push/message", post(controller::push_message_handler))
         .with_state(state)
         .layer(cors)
-        .fallback_service(ServeDir::new(client_path));
+        .fallback_service(ServeDir::new(client_path))
+        .into_make_service_with_connect_info::<SocketAddr>();
 
     let ip = util::get_local_ip().unwrap_or_else(|| "127.0.0.1".to_string());
 
