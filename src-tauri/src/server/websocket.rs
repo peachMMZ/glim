@@ -1,10 +1,20 @@
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use axum::{body::Bytes, extract::{ws::{Message, Utf8Bytes, WebSocket}, ConnectInfo, State}, http::HeaderMap};
+use axum::{
+    body::Bytes,
+    extract::{
+        ws::{Message, Utf8Bytes, WebSocket},
+        ConnectInfo, State,
+    },
+    http::HeaderMap,
+};
+use futures::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
-use tokio::{sync::{mpsc, Mutex}, time::interval};
-use futures::{sink::SinkExt, stream::StreamExt};
+use tokio::{
+    sync::{mpsc, Mutex},
+    time::interval,
+};
 
 use super::AppState;
 
@@ -47,7 +57,10 @@ impl From<Message> for WebSocketMessage {
                 message_type: WebSocketMessageType::Text,
                 from: None,
                 to: None,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis(),
             },
             Message::Binary(data) => Self {
                 text: None,
@@ -55,7 +68,10 @@ impl From<Message> for WebSocketMessage {
                 message_type: WebSocketMessageType::Binary,
                 from: None,
                 to: None,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis(),
             },
             Message::Ping(_) => Self {
                 text: None,
@@ -63,7 +79,10 @@ impl From<Message> for WebSocketMessage {
                 message_type: WebSocketMessageType::Ping,
                 from: None,
                 to: None,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis(),
             },
             Message::Pong(_) => Self {
                 text: None,
@@ -71,7 +90,10 @@ impl From<Message> for WebSocketMessage {
                 message_type: WebSocketMessageType::Pong,
                 from: None,
                 to: None,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis(),
             },
             Message::Close(_) => Self {
                 text: None,
@@ -79,7 +101,10 @@ impl From<Message> for WebSocketMessage {
                 message_type: WebSocketMessageType::Close,
                 from: None,
                 to: None,
-                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis(),
+                timestamp: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis(),
             },
         }
     }
@@ -99,15 +124,13 @@ impl From<WebSocketMessage> for Message {
 
 pub async fn websocket_handler(
     headers: HeaderMap,
-    socket: WebSocket, 
+    socket: WebSocket,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     connections: Arc<Mutex<Vec<WebsocketConnection>>>,
     State(state): State<Arc<AppState>>,
 ) {
     // Get the user agent from the headers
-    let user_agent = headers
-        .get("User-Agent")
-        .and_then(|h| h.to_str().ok());
+    let user_agent = headers.get("User-Agent").and_then(|h| h.to_str().ok());
 
     // Generate a unique connection ID
     let connection_id = uuid::Uuid::new_v4().to_string();
@@ -123,7 +146,9 @@ pub async fn websocket_handler(
     let new_connection_clone = new_connection.clone();
     connections.lock().await.push(new_connection);
 
-    let _ = state.app_handle.emit("glim://ws-connect", &new_connection_clone);
+    let _ = state
+        .app_handle
+        .emit("glim://ws-connect", &new_connection_clone);
 
     let tx_clone = tx.clone();
 
@@ -182,7 +207,9 @@ pub async fn websocket_handler(
 
     let mut connections = connections.lock().await;
     connections.retain(|c| c.id != connection_id);
-    let _ = state.app_handle.emit("glim://ws-disconnect", &connection_id);
+    let _ = state
+        .app_handle
+        .emit("glim://ws-disconnect", &connection_id);
 }
 
 #[tauri::command]

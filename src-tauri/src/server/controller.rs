@@ -1,9 +1,12 @@
-use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
+use std::{
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
+use crate::server::response::ApiResult;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
-use crate::server::response::ApiResult;
 
 use super::AppState;
 
@@ -21,7 +24,7 @@ pub enum PushType {
     Location,
     Card,
     Custom,
-    Unknown
+    Unknown,
 }
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -29,16 +32,22 @@ pub struct PushData {
     #[serde(default = "current_time")]
     time: u128,
     push_type: PushType,
-    payload: String
+    payload: String,
 }
 fn current_time() -> u128 {
-    SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_millis()
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_millis()
 }
 pub async fn push_message_handler(
     State(state): State<Arc<AppState>>,
-    Json(data): Json<PushData>
+    Json(data): Json<PushData>,
 ) -> impl IntoResponse {
-    println!("[{:?}] Push data [type: {:?}] [payload: {:?}]", data.time, data.push_type, data.payload);
+    println!(
+        "[{:?}] Push data [type: {:?}] [payload: {:?}]",
+        data.time, data.push_type, data.payload
+    );
     match state.app_handle.emit("glim://push-data", &data) {
         Ok(_) => ApiResult::<()>::success(None),
         Err(_) => ApiResult::<()>::error("emit error".to_string()),

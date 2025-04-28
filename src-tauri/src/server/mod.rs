@@ -1,9 +1,14 @@
 mod controller;
 mod response;
-pub mod websocket;
 pub mod util;
+pub mod websocket;
 
-use axum::{extract::{ws::Message, ConnectInfo, WebSocketUpgrade}, http::HeaderMap, routing::{get, post}, Router};
+use axum::{
+    extract::{ws::Message, ConnectInfo, WebSocketUpgrade},
+    http::HeaderMap,
+    routing::{get, post},
+    Router,
+};
 use serde::Serialize;
 use std::{
     net::SocketAddr,
@@ -34,7 +39,8 @@ static SERVER_STATE: OnceLock<Arc<Mutex<ServerState>>> = OnceLock::new();
 static IS_RUNNING: OnceLock<AtomicBool> = OnceLock::new();
 static SHOULD_SHUTDOWN: OnceLock<AtomicBool> = OnceLock::new();
 static SERVER_HANDLE: OnceLock<Mutex<Option<JoinHandle<()>>>> = OnceLock::new();
-pub static ACTIVE_WS_CONNECTIONS: OnceLock<Arc<Mutex<Vec<websocket::WebsocketConnection>>>> = OnceLock::new();
+pub static ACTIVE_WS_CONNECTIONS: OnceLock<Arc<Mutex<Vec<websocket::WebsocketConnection>>>> =
+    OnceLock::new();
 
 pub fn init_globals() -> (
     &'static AtomicBool,
@@ -53,21 +59,20 @@ pub fn init_globals() -> (
 }
 
 #[tauri::command]
-pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String) -> Result<String, String> {
-    let (
-        is_running,
-        handle_storage,
-        should_shutdown,
-        server_state_mutex,
-        active_ws_connections
-    ) = init_globals();
+pub async fn start_server(
+    app: tauri::AppHandle,
+    port: u16,
+    client_path: String,
+) -> Result<String, String> {
+    let (is_running, handle_storage, should_shutdown, server_state_mutex, active_ws_connections) =
+        init_globals();
 
     if is_running.load(Ordering::SeqCst) {
         return Err("Server is already running".to_string());
     }
 
     should_shutdown.store(false, Ordering::SeqCst);
-    
+
     println!("Starting server on port {}", port);
     println!("Client path: {}", client_path);
 
@@ -78,21 +83,30 @@ pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String)
         .allow_methods(Any)
         .allow_origin(Any)
         .allow_headers(Any);
-    
+
     let router = Router::new()
-        .route("/ws", get(
-            |ws: WebSocketUpgrade, state, headers: HeaderMap, connect_info: ConnectInfo<SocketAddr>| 
-            {
-                let connections = active_ws_connections.clone();
-                async move {
-                    ws.on_upgrade(
-                        move |socket| {
-                            websocket::websocket_handler(headers, socket, connect_info, connections, state)
-                        }
-                    )
-                }
-            }
-        ))
+        .route(
+            "/ws",
+            get(
+                |ws: WebSocketUpgrade,
+                 state,
+                 headers: HeaderMap,
+                 connect_info: ConnectInfo<SocketAddr>| {
+                    let connections = active_ws_connections.clone();
+                    async move {
+                        ws.on_upgrade(move |socket| {
+                            websocket::websocket_handler(
+                                headers,
+                                socket,
+                                connect_info,
+                                connections,
+                                state,
+                            )
+                        })
+                    }
+                },
+            ),
+        )
         .route("/api/hello", get(controller::hello_handler))
         .route("/api/push/message", post(controller::push_message_handler))
         .with_state(state)
@@ -135,7 +149,8 @@ pub async fn start_server(app: tauri::AppHandle, port: u16, client_path: String)
 
 #[tauri::command]
 pub async fn stop_server() -> Result<String, String> {
-    let (is_running, handle_storage, should_shutdown, server_state_mutex, active_ws_connections) = init_globals();
+    let (is_running, handle_storage, should_shutdown, server_state_mutex, active_ws_connections) =
+        init_globals();
 
     if !is_running.load(Ordering::SeqCst) {
         return Err("Server is not running".to_string());
@@ -183,4 +198,3 @@ pub async fn server_state() -> Result<ServerState, String> {
     let server_state = server_state_mutex.lock().await;
     Ok(server_state.clone())
 }
-
