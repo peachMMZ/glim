@@ -15,7 +15,7 @@
           :style="{ backgroundColor: themeVars.primaryColor }"
           @contextmenu="handleContextMenu"
         >
-          <NText class="text-slate-100">{{ text }}</NText>
+          <NText v-html="text" class="text-slate-100"></NText>
         </div>
       </div>
       <NDropdown
@@ -102,4 +102,11 @@ function handleDropdownSelect(key: string, data: BubbleOptions) {
   showDropdown.value = false
 }
 </script>
-<style scoped></style>
+<style>
+p {
+  margin: 0;
+}
+img {
+  max-width: 100%;
+}
+</style>

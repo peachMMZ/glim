@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{fmt, net::SocketAddr, sync::Arc, time::Duration};
 
 use axum::{
     body::Bytes,
@@ -122,6 +122,47 @@ impl From<WebSocketMessage> for Message {
     }
 }
 
+impl fmt::Display for WebSocketMessage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.message_type {
+            WebSocketMessageType::Binary => {
+                let len = self.binary.as_ref().map_or(0, |data| data.len());
+                let preview = if let Some(data) = &self.binary {
+                    if len > 0 {
+                        let preview_len = std::cmp::min(len, 8);
+                        let preview_data = &data[..preview_len];
+                        format!("[{:02X?}{}]", 
+                            preview_data,
+                            if len > 8 { "..." } else { "" }
+                        )
+                    } else {
+                        String::from("[]")
+                    }
+                } else {
+                    String::from("[]")
+                };
+                write!(f, "Text('{}') Binary({}) {} from: {} to: {}", 
+                    self.text.as_deref().unwrap_or(""),
+                    len,
+                    preview,
+                    self.from.as_deref().unwrap_or("-"),
+                    self.to.as_deref().unwrap_or("all")
+                )
+            },
+            WebSocketMessageType::Text => {
+                write!(f, "Text('{}') from: {} to: {}", 
+                    self.text.as_deref().unwrap_or(""),
+                    self.from.as_deref().unwrap_or("-"),
+                    self.to.as_deref().unwrap_or("all")
+                )
+            },
+            WebSocketMessageType::Ping => write!(f, "Ping"),
+            WebSocketMessageType::Pong => write!(f, "Pong"),
+            WebSocketMessageType::Close => write!(f, "Close"),
+        }
+    }
+}
+
 pub async fn websocket_handler(
     headers: HeaderMap,
     socket: WebSocket,
@@ -190,7 +231,7 @@ pub async fn websocket_handler(
                 _ => {
                     let mut ws_message = WebSocketMessage::from(msg);
                     ws_message.from = Some(recv_connection_id.clone());
-                    println!("Received WebSocket message: {:?}", ws_message);
+                    println!("Received WebSocket message: {:?}", ws_message.to_string());
                     if emit_recv_app.emit("glim://ws-recv", &ws_message).is_err() {
                         let _ = tx_clone.send(Message::Close(None));
                         break;
@@ -220,7 +261,7 @@ pub async fn send_ws_message(ws_message: WebSocketMessage) -> Result<(), String>
         return Err("No active connections".to_string());
     }
     let message = Message::from(ws_message.clone());
-    println!("Sending WebSocket message: {:?}", ws_message);
+    println!("Sending WebSocket message: {}", ws_message.to_string());
     // 如果有目标ID，则只发送给目标连接
     if let Some(target_id) = ws_message.to {
         if let Some(connection) = connections.iter().find(|c| c.id == target_id) {
