@@ -6,7 +6,7 @@ pub mod websocket;
 use axum::{
     extract::{ws::Message, ConnectInfo, WebSocketUpgrade},
     http::HeaderMap,
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use serde::Serialize;
@@ -108,7 +108,7 @@ pub async fn start_server(
             ),
         )
         .route("/api/hello", get(controller::hello_handler))
-        .route("/api/push/message", post(controller::push_message_handler))
+        .route("/api/resource/{resource_id}", get(controller::get_resource))
         .with_state(state)
         .layer(cors)
         .fallback_service(ServeDir::new(client_path))

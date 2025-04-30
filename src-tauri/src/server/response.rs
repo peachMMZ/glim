@@ -4,14 +4,13 @@ use serde::Serialize;
 use serde_json::json;
 
 // 成功响应码和信息
-const SUCCESS_CODE: i32 = StatusCode::OK.as_u16() as i32;
+const SUCCESS_CODE: u16 = StatusCode::OK.as_u16();
 const SUCCESS_MESSAGE: &str = "success";
-const ERROR_CODE: i32 = StatusCode::INTERNAL_SERVER_ERROR.as_u16() as i32;
 
 /// 响应结构体
 #[derive(Debug, Serialize)]
 pub struct ApiResult<T> {
-    code: i32,
+    code: u16,
     success: bool,
     message: String,
     data: Option<T>,
@@ -34,9 +33,9 @@ impl<T> ApiResult<T> {
             message: SUCCESS_MESSAGE.to_owned(),
         }
     }
-    pub fn error(message: String) -> Self {
+    pub fn error(code: StatusCode, message: String) -> Self {
         Self {
-            code: ERROR_CODE,
+            code: code.as_u16(),
             success: false,
             data: None,
             message,
