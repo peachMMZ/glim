@@ -97,7 +97,6 @@ async function downloadAsset(release: Release, asset: Asset) {
   const output = await join(await appDataDir(), 'client', asset.name)
   const taskId = await taskStore.newDownloadTask({ url: asset.browserDownloadUrl, output, name: asset.name })
   await download(asset.browserDownloadUrl, output, (progressPayload) => {
-    console.log(progressPayload)
     taskStore.updateTask(taskId, {
       done: progressPayload.progressTotal,
       total: progressPayload.total,

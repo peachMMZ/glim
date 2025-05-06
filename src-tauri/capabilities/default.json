@@ -47,6 +47,7 @@
         { "url": "https://github.com/**" }
       ]
     },
-    "upload:default"
+    "upload:default",
+    "dialog:default"
   ]
 }

@@ -9,6 +9,7 @@ fn greet(name: &str) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_http::init())
@@ -24,7 +25,8 @@ pub fn run() {
             server::websocket::send_ws_message,
             server::websocket::get_ws_connections,
             server::util::unzip,
-            server::util::uuid
+            server::util::uuid,
+            server::util::get_local_ip
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

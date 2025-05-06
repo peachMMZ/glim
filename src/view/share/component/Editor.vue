@@ -2,14 +2,14 @@
   <div class="h-full flex flex-col">
     <div class="h-8 flex justify-between items-center p-x-5 p-y-2">
       <div class="flex justify-start items-center gap-x-4">
-        <GEmojiPicker trigger="click" @pick="">
+        <GEmojiPicker trigger="click" @pick="insertEmoji">
           <template #trigger>
             <div class="flex items-center">
               <NButton text :render-icon="renderIcon(Smile, { size: 24 })"></NButton>
             </div>
           </template>
         </GEmojiPicker>
-        <NButton text :render-icon="renderIcon(Image, { size: 24 })" @click="sendImage"></NButton>
+        <NButton text :render-icon="renderIcon(Image, { size: 24 })" @click="insertImage"></NButton>
       </div>
       <div class="flex justify-end items-center gap-x-4">
         <NButton text :render-icon="renderIcon(Clock, { size: 24 })"></NButton>
@@ -48,7 +48,9 @@ import TImage from '@tiptap/extension-image'
 import { renderIcon } from '@/util/render'
 import { useShareSpace } from '@/store/share'
 import { convertFileSrc } from '@tauri-apps/api/core'
+import { open } from '@tauri-apps/plugin-dialog'
 import GEmojiPicker from '@/components/GEmojiPicker.vue'
+import { resourceService } from '@/service/resource'
 
 const shareSpace = useShareSpace()
 const editor = useEditor({
@@ -64,23 +66,30 @@ const editor = useEditor({
 })
 
 const sendDisabled = ref(true)
-function send() {
+async function send() {
   const html = editor.value?.getHTML()
   if (html) {
-    sendDisabled.value = true
     shareSpace.sendWsMessage(html).then(() => {
-      sendDisabled.value = false
+      editor.value?.commands.clearContent()
     })
   }
 }
 
-function sendImage() {
-  const filePath = "" // TODO get file path
-  const url = convertFileSrc(filePath)
-  editor.value?.chain().focus().setImage({ src: url }).run()
-  shareSpace.sendWsFile(filePath).then(() => {
-    console.log("send image success")
+async function insertImage() {
+  const extensions = ['jpg', 'png', 'jpeg', 'gif']
+  const filePath = await open({
+    multiple: false,
+    directory: false,
+    filters: [{ name: 'image', extensions }]
   })
+  if (!filePath) return
+  const url = convertFileSrc(filePath)
+  const fileInfo = await resourceService.getOrSave(filePath)
+  editor.value?.chain().focus().setImage({ src: url, alt: fileInfo.rid }).run()
+}
+
+function insertEmoji(emoji: string) {
+  editor.value?.chain().focus().insertContent(emoji).run()
 }
 
 onBeforeUnmount(() => {
@@ -93,5 +102,6 @@ onBeforeUnmount(() => {
 }
 .tiptap img {
   max-width: 33%;
+  padding: 0 2px;
 }
 </style>

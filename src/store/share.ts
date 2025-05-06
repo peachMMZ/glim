@@ -6,6 +6,7 @@ import { ShareSpaceDevice, ShareSpaceRoom } from '@/types/share'
 import { WebsocketConnection, WebSocketMessage } from '@/types/websocket'
 import { websocketService } from '@/service/websocket'
 import { UAParser } from 'ua-parser-js'
+import { resourceService } from '@/service/resource'
 
 export const useShareSpace = defineStore('share', () => {
 
@@ -81,9 +82,21 @@ export const useShareSpace = defineStore('share', () => {
 
   const sendWsMessage = async (text: string) => {
     if (!currentRoom.value) return
+    let sendContent = text
+    // 使用正则表达式找到所有图片
+    const imgRegex = /<img src="(.*?)" alt="(.*?)"/g
+    const matches = text.matchAll(imgRegex)
+    
+    // 逐个处理图片URL
+    for (const match of matches) {
+      const [_fullMatch, imgSrc, imgAlt] = match
+      const url = await resourceService.getSrc(imgAlt)
+      console.log(url)
+      sendContent = sendContent.replace(imgSrc, url)
+    }
     const wsMessage: WebSocketMessage = {
       messageType: 'Text',
-      text,
+      text: sendContent,
       to: currentRoom.value.device.id,
       timestamp: Date.now()
     }

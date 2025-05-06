@@ -17,7 +17,7 @@ use std::{
         Arc, OnceLock,
     },
 };
-use tauri::{AppHandle, Emitter};
+use tauri::AppHandle;
 use tokio::{sync::Mutex, task::JoinHandle};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -77,7 +77,6 @@ pub async fn start_server(
     println!("Client path: {}", client_path);
 
     let state = Arc::new(AppState { app_handle: app });
-    let state_for_emit = state.clone();
 
     let cors = CorsLayer::new()
         .allow_methods(Any)
@@ -132,10 +131,6 @@ pub async fn start_server(
     is_running.store(true, Ordering::SeqCst);
 
     let url = format!("http://{}:{}", ip, port);
-    state_for_emit
-        .app_handle
-        .emit("server-start", &url)
-        .unwrap();
 
     // 更新 ServerState
     let mut server_state = server_state_mutex.lock().await;

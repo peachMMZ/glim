@@ -131,7 +131,8 @@ impl fmt::Display for WebSocketMessage {
                     if len > 0 {
                         let preview_len = std::cmp::min(len, 8);
                         let preview_data = &data[..preview_len];
-                        format!("[{:02X?}{}]", 
+                        format!(
+                            "[{:02X?}{}]",
                             preview_data,
                             if len > 8 { "..." } else { "" }
                         )
@@ -141,21 +142,25 @@ impl fmt::Display for WebSocketMessage {
                 } else {
                     String::from("[]")
                 };
-                write!(f, "Text('{}') Binary({}) {} from: {} to: {}", 
+                write!(
+                    f,
+                    "Text('{}') Binary({}) {} from: {} to: {}",
                     self.text.as_deref().unwrap_or(""),
                     len,
                     preview,
                     self.from.as_deref().unwrap_or("-"),
                     self.to.as_deref().unwrap_or("all")
                 )
-            },
+            }
             WebSocketMessageType::Text => {
-                write!(f, "Text('{}') from: {} to: {}", 
+                write!(
+                    f,
+                    "Text('{}') from: {} to: {}",
                     self.text.as_deref().unwrap_or(""),
                     self.from.as_deref().unwrap_or("-"),
                     self.to.as_deref().unwrap_or("all")
                 )
-            },
+            }
             WebSocketMessageType::Ping => write!(f, "Ping"),
             WebSocketMessageType::Pong => write!(f, "Pong"),
             WebSocketMessageType::Close => write!(f, "Close"),

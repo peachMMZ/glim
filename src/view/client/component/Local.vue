@@ -29,6 +29,7 @@
                     type="info"
                     size="small"
                     text
+                    :disabled="systemStore.serverSetting.clientPath === asset.localPath"
                     :render-icon="renderIcon(Settings)"
                     @click=""
                   >

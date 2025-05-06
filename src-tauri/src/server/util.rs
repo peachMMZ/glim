@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::{fs::File, net::UdpSocket};
 
+#[tauri::command]
 pub fn get_local_ip() -> Option<String> {
     let socket = match UdpSocket::bind("0.0.0.0:0") {
         Ok(s) => s,
