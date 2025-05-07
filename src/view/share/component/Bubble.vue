@@ -43,10 +43,11 @@ import {
   useThemeVars,
   useMessage
 } from 'naive-ui'
-import { Copy, Star } from 'lucide-vue-next'
+import { Copy, Star, Images } from 'lucide-vue-next'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { renderIcon } from '@/util/render'
 import GTime from '@/components/GTime.vue'
+import { copyImage } from '@/util/common'
 
 const themeVars = useThemeVars()
 const message = useMessage()
@@ -61,14 +62,14 @@ const props = defineProps<BubbleOptions>()
 
 const classes = computed(() => ({
   wrapper: `w-full flex ${props.reversed ? 'justify-end': 'justify-start'}`,
-  bubble: `max-w-2/3 flex ${props.reversed ? 'flex-row-reverse' : undefined} justify-start items-start gap-2`,
+  bubble: `max-w-1/2 flex ${props.reversed ? 'flex-row-reverse' : undefined} justify-start items-start gap-2`,
   text: `p-2 rounded ${props.reversed ? 'self-end' : 'self-start'}`,
   time: `h-4 flex ${props.reversed ? 'justify-end': 'justify-start'} text-xs text-slate-400`
 }))
 
 const contextMenuPosition = ref({ x: 0, y: 0 })
 const showDropdown = ref(false)
-const dropdownOptions: DropdownOption[] = [
+const defaultDropdownOptions = (): DropdownOption[] => ([
   {
     key: 'copy',
     label: '复制',
@@ -79,9 +80,21 @@ const dropdownOptions: DropdownOption[] = [
     label: '收藏',
     icon: renderIcon(Star)
   }
-]
+])
+const imageDropdownOptions = (): DropdownOption[] => ([
+  { key: 'copy-image', label: '复制图片', icon: renderIcon(Images) }
+])
+const dropdownOptions = ref(defaultDropdownOptions())
+const contextMenuTarget = ref<HTMLElement | null>(null)
 function handleContextMenu(e: MouseEvent) {
   e.preventDefault()
+  if (e.target instanceof HTMLImageElement) {
+    contextMenuTarget.value = e.target
+    dropdownOptions.value = [...imageDropdownOptions(), ...defaultDropdownOptions()]
+  } else {
+    contextMenuTarget.value = null
+    dropdownOptions.value = defaultDropdownOptions()
+  }
   showDropdown.value = false
   nextTick(() => {
     showDropdown.value = true
@@ -95,6 +108,12 @@ function handleDropdownSelect(key: string, data: BubbleOptions) {
   switch (key) {
     case 'copy':
       writeText(data.text).then(() => {
+        message.success('已复制到剪贴板')
+      })
+      break
+    case 'copy-image':
+      const imageElement = contextMenuTarget.value as HTMLImageElement
+      copyImage(imageElement.src).then(() => {
         message.success('已复制到剪贴板')
       })
       break

@@ -91,7 +91,6 @@ export const useShareSpace = defineStore('share', () => {
     for (const match of matches) {
       const [_fullMatch, imgSrc, imgAlt] = match
       const url = await resourceService.getSrc(imgAlt)
-      console.log(url)
       sendContent = sendContent.replace(imgSrc, url)
     }
     const wsMessage: WebSocketMessage = {
@@ -110,7 +109,6 @@ export const useShareSpace = defineStore('share', () => {
   }
 
   const sendWsFile = async (filePath: string) => {
-    console.log(filePath)
     if (!currentRoom.value || !await exists(filePath)) {
       console.log('file not exists')
       return
