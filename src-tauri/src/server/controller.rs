@@ -50,9 +50,23 @@ pub async fn get_resource(
         .expect("Failed to open file");
 
     let mut headers = HeaderMap::new();
+    // 根据文件类型设置Content-Type头
+    let content_type = match file_info.filename.rsplit(".").next() {
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("png") => "image/png",
+        Some("gif") => "image/gif",
+        Some("bmp") => "image/bmp",
+        Some("webp") => "image/webp",
+        _ => "application/octet-stream",
+    };
     headers.insert(
         axum::http::header::CONTENT_TYPE,
-        "application/octet-stream".parse().unwrap(),
+        content_type.parse().unwrap(),
+    );
+
+    headers.insert(
+        axum::http::header::CONTENT_LENGTH,
+        file_info.size.to_string().parse().unwrap(),
     );
     headers.insert(
         axum::http::header::CONTENT_DISPOSITION,
